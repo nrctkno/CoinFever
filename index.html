@@ -8,9 +8,6 @@
         body {
             background-color: #000;
         }
-        canvas {
-            border: 1px solid black;
-        }
         #startScreen {
             position: absolute;
             top: 0;
@@ -45,16 +42,13 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        const audioSongAction = new Audio('./songAction.mp3');
-        audioSongAction.attributes.type = 'audio/mpeg';
+        const audioSongAction = new Audio('./audio/songAction.mp3');
         audioSongAction.loop = true;
 
-        const audioSongStart = new Audio('./songStart.mp3');
-        audioSongStart.attributes.type = 'audio/mpeg';
+        const audioSongStart = new Audio('./audio/songStart.mp3');
         audioSongStart.loop = true;
 
-        const audioFxGoal =  new Audio('./goal.mp3');
-        audioFxGoal.attributes.type = 'audio/mpeg';
+        const audioFxGoal =  new Audio('./audio/fxGoal.mp3');
         audioFxGoal.loop = false;
 
         const startScreen = document.getElementById('startScreen');
