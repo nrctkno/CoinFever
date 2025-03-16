@@ -67,8 +67,11 @@
         const GOAL_SIZE = 20
         const INITIAL_GOAL_COUNT = 5
         const GOAL_SPAWN_TIME = 1000
+
         const GRAVITY = 0.5
         const FRICTION = 0.8
+        const ROUND_DURATION = 60 // seconds
+
         const DEFAULT_PLAYER_SPEED = 5
         const DEFAULT_JUMP_STRENGTH = 12
 
@@ -96,10 +99,28 @@
         let keys = {}
         let gameOver = false
         let score = 0
-        let roundTime = 60 // seconds
-        let timeLeft = roundTime
+
+        let timeLeft = ROUND_DURATION
         let lastGoalSpawnTime = 0
         let lastUpdateTime = 0
+
+        const Engine = {
+            checkCollision: function (obj1, obj2) {
+                return obj1.x < obj2.x + obj2.width &&
+                    obj1.x + obj1.width > obj2.x &&
+                    obj1.y < obj2.y + obj2.height &&
+                    obj1.y + obj1.height > obj2.y
+            },
+
+            playAudio: function (audio) {
+                audio.currentTime = 0
+                audio.play().catch(e => console.log("Audio play failed:", e))
+            },
+            stopAudio: function (audio) {
+                audio.pause()
+                audio.currentTime = 0
+            }
+        }
 
         function drawPlayer() {
             ctx.drawImage(heroImage, player.x, player.y, player.width, player.height)
@@ -154,13 +175,6 @@
             ctx.fillText('Press Space to Restart', canvas.width / 2, canvas.height / 2 + 60)
         }
 
-        function checkCollision(obj1, obj2) {
-            return obj1.x < obj2.x + obj2.width &&
-                   obj1.x + obj1.width > obj2.x &&
-                   obj1.y < obj2.y + obj2.height &&
-                   obj1.y + obj1.height > obj2.y
-        }
-
         function spawnGoal() {
             let newGoal
             do {
@@ -171,7 +185,7 @@
                     height: GOAL_SIZE,
                     spawnTime: Date.now()
                 }
-            } while (platforms.some(platform => checkCollision(newGoal, platform)))
+            } while (platforms.some(platform => Engine.checkCollision(newGoal, platform)))
             goals.push(newGoal)
         }
 
@@ -186,8 +200,8 @@
             //check game over condition
             if (timeLeft <= 0) {
                 gameOver = true
-                audioSongAction.pause()
-                playAudio(audioSongStart)
+                Engine.stopAudio(audioSongAction)
+                Engine.playAudio(audioSongStart)
                 return
             }
 
@@ -224,7 +238,7 @@
             player.y += player.yVelocity
 
             platforms.forEach(platform => {
-                if (checkCollision(player, platform)) {
+                if (Engine.checkCollision(player, platform)) {
                     if (player.y + player.height - player.yVelocity <= platform.y) {
                         player.y = platform.y - player.height
                         player.yVelocity = 0
@@ -247,9 +261,9 @@
 
             // Check for collisions with goals, update score, remove collected goals
             goals = goals.filter(goal => {
-                if (checkCollision(player, goal)) {
+                if (Engine.checkCollision(player, goal)) {
                     score += 10
-                    playAudio(audioFxGoal)
+                    Engine.playAudio(audioFxGoal)
                     return false
                 }
                 return true
@@ -283,11 +297,6 @@
             gameLoopId = requestAnimationFrame(gameLoop)
         }
 
-        function playAudio(audio) {
-            audio.currentTime = 0
-            audio.play().catch(e => console.log("Audio play failed:", e))
-        }
-
         function resetGame() {
             player.x = 50
             player.y = 200
@@ -299,13 +308,13 @@
                 spawnGoal()
             }
             score = 0
-            timeLeft = roundTime
+            timeLeft = ROUND_DURATION
             gameOver = false
             lastGoalSpawnTime = 0
             lastUpdateTime = performance.now()
 
             audioSongStart.pause()
-            playAudio(audioSongAction)
+            Engine.playAudio(audioSongAction)
         }
 
         function startGame() {
