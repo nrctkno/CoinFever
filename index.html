@@ -39,6 +39,11 @@
     </div>
 
     <script>
+
+        // NEXT STEPS:
+        // 1. abstract start screen game over and round 1 as different scenarios and make them interchangeable
+        // 2. add a round 2 with different platforms and goals
+
         const canvas = document.getElementById('gameCanvas')
         const ctx = canvas.getContext('2d')
 
@@ -297,7 +302,7 @@
             gameLoopId = requestAnimationFrame(gameLoop)
         }
 
-        function resetGame() {
+        function resetRound1() {
             player.x = 50
             player.y = 200
             player.xVelocity = 0
@@ -321,7 +326,7 @@
             if (!gameStarted) {
                 gameStarted = true
                 startScreen.style.display = 'none'
-                resetGame()
+                resetRound1()
                 gameLoop(performance.now())
             }
         }
@@ -329,7 +334,7 @@
         document.addEventListener('keydown', (e) => {
             keys[e.code] = true
             if (e.code === 'Space' && gameOver) {
-                resetGame()
+                resetRound1()
             }
         })
 
