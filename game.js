@@ -14,7 +14,6 @@ const GRAVITY = 0.5
 const FRICTION = 0.8
 const LEVEL_DURATION = 10 // seconds
 
-// Utility functions
 const Engine = {
     checkCollision: function (obj1, obj2) {
         return obj1.x < obj2.x + obj2.width &&
@@ -33,6 +32,16 @@ const Engine = {
         return audios;
     },
 
+    loadImages: function(imageDefinitions) {
+        const images = {};
+        for (const [name, imageData] of Object.entries(imageDefinitions)) {
+            const image = new Image();
+            image.src = imageData.src;
+            images[name] = image;
+        }
+        return images;
+    },
+
     playAudio: function (audio) {
         audio.currentTime = 0
         audio.play().catch(e => console.log("Audio play failed:", e))
@@ -44,21 +53,20 @@ const Engine = {
     }
 }
 
-// Base Scene class
 class Scene {
     constructor() {
         this.audios = {};
+        this.images = {};
     }
 
-    init() { /* To be overridden */ }
-    cleanup() { /* To be overridden */ }
-    update(currentTime) { /* To be overridden */ }
-    draw() { /* To be overridden */ }
-    handleKeyDown(event) { /* To be overridden */ }
-    handleKeyUp(event) { /* To be overridden */ }
+    init() {}
+    cleanup() {}
+    update(currentTime) {}
+    draw() {}
+    handleKeyDown(event) {}
+    handleKeyUp(event) {}
 }
 
-// Start Scene class
 class StartScene extends Scene {
     constructor() {
         super();
@@ -120,7 +128,7 @@ class StartScene extends Scene {
     }
 }
 
-// Level 1 Scene class
+
 class Level1Scene extends Scene {
 
     constructor() {

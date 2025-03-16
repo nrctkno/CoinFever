@@ -3,7 +3,7 @@
 A tiny game mostly done with AI.
 
 - Music: [suno.ai](https://suno.com)
-- Code scaffold: [claude.ai](https://claude.ai)
+- Code scaffold and refactoring: [claude.ai](https://claude.ai)
 
 ## How to play
 
