@@ -1,6 +1,3 @@
-const canvas = document.getElementById('gameCanvas')
-const ctx = canvas.getContext('2d')
-
 // Environment constants
 const GRAVITY = 0.5
 const FRICTION = 0.8
@@ -24,14 +21,17 @@ class StartScene extends Scene {
     }
 
     onRender() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        const cnv = this.manager.engine().canvas()
+        cnv.clear()
 
         //draw BG
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+        const gradient = ctx.createLinearGradient(0, 0, 0, cnv.height())
         gradient.addColorStop(0, '#87CEEB')
         gradient.addColorStop(1, '#FFF')
         ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillRect(0, 0, cnv.width(), cnv.height())
+
+        //cnv.rect(0, 0, cnv.width(), cnv.height(), '#000')
 
         //draw title
         ctx.fillStyle = '#fff'
@@ -39,10 +39,10 @@ class StartScene extends Scene {
         ctx.textAlign = 'center'
         ctx.fillText(`Coin Fever`, 400, 200)
         ctx.font = '24px Arial'
-        ctx.fillText('Press Space to Start', canvas.width / 2, canvas.height / 2 + 60)
+        ctx.fillText('Press Space to Start', cnv.width() / 2, cnv.height() / 2 + 60)
 
         //draw big goal
-        ctx.drawImage(this.assets.imgGoal, 380, 100, 40, 40)
+        cnv.image(this.assets.imgGoal, 380, 100, 40, 40)
     }
 
     onKeyDown(event) {
@@ -127,12 +127,14 @@ class Level1Scene extends Scene {
     }
 
     spawnGoal() {
+        const cnv = this.manager.engine().canvas()
+
         let newGoal
         // Finds a free spot for the goal that doesn't overlap with platforms
         do {
             newGoal = {
-                x: Math.random() * (canvas.width - this.GOAL_SIZE),
-                y: Math.random() * (canvas.height - this.GOAL_SIZE),
+                x: Math.random() * (cnv.width() - this.GOAL_SIZE),
+                y: Math.random() * (cnv.height() - this.GOAL_SIZE),
                 width: this.GOAL_SIZE,
                 height: this.GOAL_SIZE,
                 spawnTime: Date.now()
@@ -147,6 +149,8 @@ class Level1Scene extends Scene {
     }
 
     onTick(currentTime) {
+        const cnv = this.manager.engine().canvas()
+
         // Calculate delta time
         const deltaTime = (currentTime - this.lastUpdateTime) / 1000
         this.lastUpdateTime = currentTime
@@ -225,23 +229,24 @@ class Level1Scene extends Scene {
 
         // Boundary collisions
         if (this.player.x < 0) this.player.x = 0
-        if (this.player.x + this.player.width > canvas.width) this.player.x = canvas.width - this.player.width
-        if (this.player.y + this.player.height > canvas.height) {
-            this.player.y = canvas.height - this.player.height
+        if (this.player.x + this.player.width > cnv.width()) this.player.x = cnv.width() - this.player.width
+        if (this.player.y + this.player.height > cnv.height()) {
+            this.player.y = cnv.height() - this.player.height
             this.player.yVelocity = 0
             this.player.isJumping = false
         }
     }
 
     onRender() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        const cnv = this.manager.engine().canvas()
+        cnv.clear()
 
         //draw sky
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+        const gradient = ctx.createLinearGradient(0, 0, 0, cnv.height())
         gradient.addColorStop(0, '#87CEEB')
         gradient.addColorStop(1, '#FFF')
         ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillRect(0, 0, cnv.width(), cnv.height())
 
         //draw platforms
         this.platforms.forEach(platform => {
@@ -255,11 +260,11 @@ class Level1Scene extends Scene {
 
         // Draw goals
         this.goals.forEach(goal => {
-            ctx.drawImage(this.assets.imgGoal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE)
+            cnv.image(this.assets.imgGoal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE)
         })
 
         //draw player
-        ctx.drawImage(this.assets.imgHero, this.player.x, this.player.y, this.player.width, this.player.height)
+        cnv.image(this.assets.imgHero, this.player.x, this.player.y, this.player.width, this.player.height)
 
         //draw status
         ctx.fillStyle = '#fff'
@@ -299,23 +304,24 @@ class GameOverScene extends Scene {
     }
 
     onRender() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        const cnv = this.manager.engine().canvas()
+        cnv.clear()
 
         this.manager.previousScene().onRender()
 
         // Draw game over overlay
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillRect(0, 0, cnv.width(), cnv.height())
 
         ctx.font = 'bold 48px Arial'
         ctx.fillStyle = 'white'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 30)
+        ctx.fillText('Game Over!', cnv.width() / 2, cnv.height() / 2 - 30)
 
         ctx.font = '24px Arial'
-        ctx.fillText(`Final Score: ${this.score}`, canvas.width / 2, canvas.height / 2 + 20)
-        ctx.fillText('Press Space to Restart', canvas.width / 2, canvas.height / 2 + 60)
+        ctx.fillText(`Final Score: ${this.score}`, cnv.width() / 2, cnv.height() / 2 + 20)
+        ctx.fillText('Press Space to Restart', cnv.width() / 2, cnv.height() / 2 + 60)
     }
 
     onKeyDown(event) {
@@ -328,6 +334,9 @@ class GameOverScene extends Scene {
 /**
  * main
  */
-const engine = new Engine()
+const canvas = document.getElementById('gameCanvas')
+const ctx = canvas.getContext('2d') //WIP: finish migration to engine canvas and remove this context
+
+const engine = new Engine(new Web2dCanvas(canvas))
 engine.scene().change(StartScene)
 engine.run()

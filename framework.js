@@ -1,10 +1,15 @@
 class Engine {
     #audio
     #scene
+    #canvas
 
-    constructor() {
+    /**
+     * @param {Canvas} canvas
+     */
+    constructor(canvas) {
         this.#audio = new AudioManager()
         this.#scene = new SceneManager(this)
+        this.#canvas = canvas
         this.registerKeyboardEvents()
     }
 
@@ -23,6 +28,10 @@ class Engine {
 
     scene() {
         return this.#scene
+    }
+
+    canvas() {
+        return this.#canvas
     }
 
     checkCollision(obj1, obj2) {
@@ -101,6 +110,10 @@ class AudioManager {
 }
 
 class Scene {
+
+    /**
+     * @param {SceneManager} manager
+     */
     constructor(manager) {
         this.manager = manager
     }
@@ -118,6 +131,9 @@ class SceneManager {
     #currentScene
     #previousScene
 
+    /**
+     * @param {Engine} engine
+     */
     constructor(engine) {
         this.#engine = engine
         this.#currentScene = null
@@ -163,5 +179,73 @@ class SceneManager {
         if (this.#currentScene) {
             this.#currentScene.onKeyUp(event)
         }
+    }
+}
+
+class Canvas {
+
+    constructor() {
+        if (new.target === Canvas) {
+            throw new TypeError("Cannot construct Canvas instances directly")
+        }
+    }
+
+    clear() {
+        throw new Error("Method 'clear()' must be implemented.")
+    }
+
+    image(image, x, y, width, height) {
+        throw new Error("Method 'drawImage()' must be implemented.")
+    }
+
+    rect(x, y, width, height, fillStyle) {
+        throw new Error("Method 'drawRect()' must be implemented.")
+    }
+
+    text(text, x, y, font = "16px sans-serif", fillStyle = "#000") {
+        throw new Error("Method 'drawText()' must be implemented.")
+    }
+
+    width() {
+        throw new Error("Method 'width()' must be implemented.")
+    }
+
+    height() {
+        throw new Error("Method 'height()' must be implemented.")
+    }
+}
+
+class Web2dCanvas extends Canvas {
+    constructor(canvasElement) {
+        super()
+        this.canvasElement = canvasElement
+        this.context = canvasElement.getContext('2d')
+    }
+
+    clear() {
+        this.context.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height)
+    }
+
+    image(image, x, y, width, height) {
+        this.context.drawImage(image, x, y, width, height)
+    }
+
+    rect(x, y, width, height, fillStyle) {
+        this.context.fillStyle = fillStyle
+        this.context.fillRect(x, y, width, height)
+    }
+
+    text(text, x, y, font = "16px sans-serif", fillStyle = "#000") {
+        this.context.font = font
+        this.context.fillStyle = fillStyle
+        this.context.fillText(text, x, y)
+    }
+
+    width() {
+        return this.canvasElement.width
+    }
+
+    height() {
+        return this.canvasElement.height
     }
 }
