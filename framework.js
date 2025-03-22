@@ -182,6 +182,19 @@ class SceneManager {
     }
 }
 
+class Point {
+    constructor(x, y) {
+        this.x = x
+        this.y = y
+    }
+
+    //static method to create a Point from x and y
+    static from(x, y) {
+        return new Point(x, y)
+    }
+
+}
+
 class Canvas {
 
     constructor() {
@@ -213,6 +226,10 @@ class Canvas {
     height() {
         throw new Error("Method 'height()' must be implemented.")
     }
+
+    gradient(x0, y0, x1, y1, colorStopPairs) {
+        throw new Error("Method 'gradient()' must be implemented.")
+    }
 }
 
 class Web2dCanvas extends Canvas {
@@ -226,19 +243,34 @@ class Web2dCanvas extends Canvas {
         this.context.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height)
     }
 
-    image(image, x, y, width, height) {
-        this.context.drawImage(image, x, y, width, height)
+    /**
+     *
+     * @param {Image} image
+     * @param {Point} pos
+     * @param {Point} size
+     */
+    image(image, pos, size) {
+        this.context.drawImage(image, pos.x, pos.y, size.x, size.y)
     }
 
-    rect(x, y, width, height, fillStyle) {
+    /**
+     * @param {Point} pos
+     * @param {Point} size
+     */
+    rect(pos, size, fillStyle) {
         this.context.fillStyle = fillStyle
-        this.context.fillRect(x, y, width, height)
+        this.context.fillRect(pos.x, pos.y, size.x, size.y)
     }
 
-    text(text, x, y, font = "16px sans-serif", fillStyle = "#000") {
+    /**
+     * @param {string} text
+     * @param {Point} pos
+     */
+    text(text, pos, font = "16px sans-serif", fillStyle = "#000", align = "left") {
         this.context.font = font
         this.context.fillStyle = fillStyle
-        this.context.fillText(text, x, y)
+        this.context.textAlign = align
+        this.context.fillText(text, pos.x, pos.y)
     }
 
     width() {
@@ -247,5 +279,39 @@ class Web2dCanvas extends Canvas {
 
     height() {
         return this.canvasElement.height
+    }
+
+    /**
+     * @param {Point} start
+     * @param {Point} end
+     */
+    gradient(start, end, colorStopPairs) {
+        const gradient = this.context.createLinearGradient(start.x, start.y, end.x, end.y)
+        for (const [offset, color] of colorStopPairs) {
+            gradient.addColorStop(offset, color)
+        }
+        return gradient
+    }
+
+    rgba(r, g, b, a) {
+        return `rgba(${r}, ${g}, ${b}, ${a})`
+    }
+
+    rgb(r, g, b) {
+        return `rgb(${r}, ${g}, ${b})`
+    }
+}
+
+class Gradient {
+
+    /**
+     * @param {*} colorStopPairs
+     */
+    constructor(x0, y0, x1, y1, colorStopPairs) {
+        this.x0 = x0
+        this.y0 = y0
+        this.x1 = x1
+        this.y1 = y1
+        this.colors = colorStopPairs
     }
 }

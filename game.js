@@ -2,6 +2,29 @@
 const GRAVITY = 0.5
 const FRICTION = 0.8
 const LEVEL1_DURATION = 5 // seconds
+//gets a boolean based on time of day
+
+const HOUR = (new Date()).getHours()
+//if hour is between 8 and 18, it's day; if is between 6 and 8 or 18 and 19, it's dusk; otherwise it's night
+const TIME_OF_DAY =
+    (HOUR >= 8 && HOUR < 18) ? 'day' :
+    (HOUR >= 6 && HOUR < 8 || HOUR >= 18 && HOUR < 20) ? 'dusk' :
+    'night'
+
+const THEMES = {
+    day: {
+        background: '#87CEEB',
+        platform: '#33CC00',
+    },
+    dusk: {
+        background: '#FFA500',
+        platform: '#CC5500',
+    },
+    night: {
+        background: '#2C3E50',
+        platform: '#34495E',
+    }
+}
 
 // Asset constants
 const IMG_GOAL = 'data:image/webp;base64,UklGRrICAABXRUJQVlA4TKYCAAAvE8AEEGflJrZtV9n3/vyJFVIwgX8J9FTxvXOPDceRJDlK9aC1/GMS/v/w4SSwM+06kmxVmT3PcMiA/BMgIvtyl3vPso1t28Z6yO6I/nSgAP0X5KU3vQLwys0PhmCbGry8i6hMVSmoKP0o/1h8tfyAJH/If8RXSIiq/4TFl/nDMLBhJQQwJVSW2cKwUYlKqEn7WaWoCVQGWGz8q6CkUQxre4+VCkTS1Oqu9IdB/UIgai2MKOsqEMCcor/8Z7ioVGdq7UCGqrnIUQYY1MtlRh86oUalffu2N66r4qo2BfEhJxdsGMNiA8OFcRHy22s/YGmLnyJh9U+nT38GENsOm3mNMZhqMYzLqOvr8JhkEgZUtnz0ToRcEiGMa7tdxlIACXdqA4PJPyEMK2DLTepOJi3bkK2FLQg2Up2MkHTyu7ZqJUKOF3P1np9HdS7Dtx/oH+n9Nu7vo3GNAAhggSA8br7lvyVmUo31lLNJ8s+0jhNkUGveeQEmhECOz/IGMscUIGzbdjzV/GQb68vLy1yu2c6cmW3XbGRj/pc5ov8TAP/58B4IfNz/7DWscdntdFX45QdetdniZLOopl2Z9xsv18aZv8BgtAvTnRLvF69qG8+Qnu3x3CHnIqz8+VPYzDHGRyfubKKQ65NJXBAAHjSWueSIKCt/9vAyr2S4V/kI8O5y6uMiYxyVZdUIUtjFZLwBBOzsmqToWPeSFo1CCloEJP8nVm1WaiZat0zJR4pbR4kBgA8aVZuSkHNUUTVTetVIWF/5ALhXmRYz0nL3hcKDy/K+qQHpEwCE94bqbpDLre0rz9nGOC4EAPCiaDutv771eIqa8WKs/PkTeCUd7eTjhqbukQmsxAtfe+WDPUzB2Fo/Tu6F75+DSgaJuCoNPcOPH998gY8n+E8='
@@ -25,24 +48,24 @@ class StartScene extends Scene {
         cnv.clear()
 
         //draw BG
-        const gradient = ctx.createLinearGradient(0, 0, 0, cnv.height())
-        gradient.addColorStop(0, '#87CEEB')
-        gradient.addColorStop(1, '#FFF')
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, cnv.width(), cnv.height())
+        cnv.rect(
+            Point.from(0, 0),
+            Point.from(cnv.width(), cnv.height()),
+            cnv.gradient(
+                Point.from(0, 0),
+                Point.from(0, cnv.height()),
+                [
+                    [0, THEMES[TIME_OF_DAY].background],
+                    [1, '#FFF']
+                ]
+            )
+        )
 
-        //cnv.rect(0, 0, cnv.width(), cnv.height(), '#000')
-
-        //draw title
-        ctx.fillStyle = '#fff'
-        ctx.font = '36px Arial'
-        ctx.textAlign = 'center'
-        ctx.fillText(`Coin Fever`, 400, 200)
-        ctx.font = '24px Arial'
-        ctx.fillText('Press Space to Start', cnv.width() / 2, cnv.height() / 2 + 60)
+        cnv.text('Coin Fever', Point.from(cnv.width() / 2, cnv.height() / 2), '36px Arial', '#fff', 'center')
+        cnv.text('Press Space to Start', Point.from(cnv.width() / 2, cnv.height() / 2 + 60), '24px Arial', '#fff', 'center')
 
         //draw big goal
-        cnv.image(this.assets.imgGoal, 380, 100, 40, 40)
+        cnv.image(this.assets.imgGoal, Point.from(380, 100), Point.from(40, 40))
     }
 
     onKeyDown(event) {
@@ -242,36 +265,54 @@ class Level1Scene extends Scene {
         cnv.clear()
 
         //draw sky
-        const gradient = ctx.createLinearGradient(0, 0, 0, cnv.height())
-        gradient.addColorStop(0, '#87CEEB')
-        gradient.addColorStop(1, '#FFF')
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, cnv.width(), cnv.height())
+        cnv.rect(
+            Point.from(0, 0),
+            Point.from(cnv.width(), cnv.height()),
+            cnv.gradient(
+                Point.from(0, 0),
+                Point.from(0, cnv.height()),
+                [
+                    [0, THEMES[TIME_OF_DAY].background],
+                    [1, '#FFF']
+                ]
+        )
+        )
 
         //draw platforms
         this.platforms.forEach(platform => {
-            const gradient = ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height)
-            gradient.addColorStop(0, '#33CC00')
-            gradient.addColorStop(1, '#CC5544')
-            ctx.fillStyle = gradient
-
-            ctx.fillRect(platform.x, platform.y, platform.width, platform.height)
+            cnv.rect(
+                Point.from(platform.x, platform.y),
+                Point.from(platform.width, platform.height),
+                cnv.gradient(
+                    Point.from(0, platform.y),
+                    Point.from(0, platform.y + platform.height),
+                    [
+                        [0, THEMES[TIME_OF_DAY].platform],
+                        [1, '#CC5544']
+                    ]
+                )
+            )
         })
 
         // Draw goals
         this.goals.forEach(goal => {
-            cnv.image(this.assets.imgGoal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE)
+            cnv.image(
+                this.assets.imgGoal,
+                Point.from(goal.x, goal.y),
+                Point.from(this.GOAL_SIZE, this.GOAL_SIZE)
+            )
         })
 
         //draw player
-        cnv.image(this.assets.imgHero, this.player.x, this.player.y, this.player.width, this.player.height)
+        cnv.image(
+            this.assets.imgHero,
+            Point.from(this.player.x, this.player.y),
+            Point.from(this.player.width, this.player.height)
+        )
 
         //draw status
-        ctx.fillStyle = '#fff'
-        ctx.font = '14px Arial'
-        ctx.textAlign = 'left'
-        ctx.fillText(`Time: ${Math.ceil(this.timeLeft)}s`, 10, 30)
-        ctx.fillText(`Score: ${this.score}`, 10, 60)
+        cnv.text('Time: ' + Math.ceil(this.timeLeft) + 's', Point.from(10, 30), '14px Arial', '#fff', 'left')
+        cnv.text('Score: ' + this.score, Point.from(10, 60), '14px Arial', '#fff', 'left')
     }
 
     onKeyDown(event) {
@@ -307,21 +348,20 @@ class GameOverScene extends Scene {
         const cnv = this.manager.engine().canvas()
         cnv.clear()
 
+        //draw previous scene as background
         this.manager.previousScene().onRender()
 
-        // Draw game over overlay
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
-        ctx.fillRect(0, 0, cnv.width(), cnv.height())
+        //game over overlay
+        cnv.rect(
+            Point.from(0, 0),
+            Point.from(cnv.width(), cnv.height()),
+            cnv.rgba(0, 0, 0, 0.5)
+        )
 
-        ctx.font = 'bold 48px Arial'
-        ctx.fillStyle = 'white'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText('Game Over!', cnv.width() / 2, cnv.height() / 2 - 30)
+        cnv.text('Game Over!', Point.from(cnv.width() / 2, cnv.height() / 2 - 30), '48px Arial', '#fff', 'center')
+        cnv.text(`Final Score: ${this.score}`, Point.from(cnv.width() / 2, cnv.height() / 2 + 20), '24px Arial', '#fff', 'center')
+        cnv.text('Press Space to Restart', Point.from(cnv.width() / 2, cnv.height() / 2 + 60), '24px Arial', '#fff', 'center')
 
-        ctx.font = '24px Arial'
-        ctx.fillText(`Final Score: ${this.score}`, cnv.width() / 2, cnv.height() / 2 + 20)
-        ctx.fillText('Press Space to Restart', cnv.width() / 2, cnv.height() / 2 + 60)
     }
 
     onKeyDown(event) {
@@ -335,8 +375,6 @@ class GameOverScene extends Scene {
  * main
  */
 const canvas = document.getElementById('gameCanvas')
-const ctx = canvas.getContext('2d') //WIP: finish migration to engine canvas and remove this context
-
 const engine = new Engine(new Web2dCanvas(canvas))
 engine.scene().change(StartScene)
 engine.run()
