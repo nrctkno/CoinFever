@@ -23,10 +23,6 @@ class StartScene extends Scene {
         })
     }
 
-    update(currentTime) {
-        // Nothing to update in start screen
-    }
-
     draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -49,7 +45,7 @@ class StartScene extends Scene {
         ctx.drawImage(this.assets.imgGoal, 380, 100, 40, 40);
     }
 
-    handleKeyDown(event) {
+    onKeyDown(event) {
         if (event.code === 'Space') {
             this.manager.changeScene(Level1Scene);
         }
@@ -132,6 +128,7 @@ class Level1Scene extends Scene {
 
     spawnGoal() {
         let newGoal;
+        // Finds a free spot for the goal that doesn't overlap with platforms
         do {
             newGoal = {
                 x: Math.random() * (canvas.width - this.GOAL_SIZE),
@@ -143,10 +140,11 @@ class Level1Scene extends Scene {
         } while (
             this.platforms.some(platform => this.manager.engine().checkCollision(newGoal, platform))
         );
+
         this.goals.push(newGoal);
     }
 
-    update(currentTime) {
+    onTick(currentTime) {
         // Calculate delta time
         const deltaTime = (currentTime - this.lastUpdateTime) / 1000;
         this.lastUpdateTime = currentTime;
@@ -269,11 +267,11 @@ class Level1Scene extends Scene {
         ctx.fillText(`Score: ${this.score}`, 10, 60);
     }
 
-    handleKeyDown(event) {
+    onKeyDown(event) {
         this.keys[event.code] = true;
     }
 
-    handleKeyUp(event) {
+    onKeyUp(event) {
         this.keys[event.code] = false;
     }
 }
@@ -317,7 +315,7 @@ class GameOverScene extends Scene {
         ctx.fillText('Press Space to Restart', canvas.width / 2, canvas.height / 2 + 60);
     }
 
-    handleKeyDown(event) {
+    onKeyDown(event) {
         if (event.code === 'Space') {
             this.manager.changeScene(Level1Scene);
         }
@@ -327,22 +325,22 @@ class GameOverScene extends Scene {
 //main
 
 let gameLoopId
-const engine = new Engine(/*canvas, ctx*/);
+const engine = new Engine();
 const sceneManager = new SceneManager(engine);
 
 // Update main game loop and event handlers
 function gameLoop(currentTime) {
-    sceneManager.update(currentTime);
+    sceneManager.tick(currentTime);
     sceneManager.draw();
     gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener('keydown', (e) => {
-    sceneManager.handleKeyDown(e);
+    sceneManager.keyDown(e);
 });
 
 document.addEventListener('keyup', (e) => {
-    sceneManager.handleKeyUp(e);
+    sceneManager.keyUp(e);
 });
 
 // Initialize with the start scenario

@@ -77,11 +77,11 @@ class Scene {
     }
 
     init() {}
-    cleanup() {}
-    update(currentTime) {}
     draw() {}
-    handleKeyDown(event) {}
-    handleKeyUp(event) {}
+    cleanup() {}
+    onTick(currentTime) {}
+    onKeyDown(event) {}
+    onKeyUp(event) {}
 }
 
 class SceneManager {
@@ -112,27 +112,27 @@ class SceneManager {
         this.#currentScene.init();
     }
 
-    update(currentTime) {
-        if (this.#currentScene && this.#currentScene.update) {
-            this.#currentScene.update(currentTime);
+    tick(currentTime) {
+        if (this.#currentScene) {
+            this.#currentScene.onTick(currentTime);
         }
     }
 
     draw() {
-        if (this.#currentScene && this.#currentScene.draw) {
+        if (this.#currentScene) {
             this.#currentScene.draw();
         }
     }
 
-    handleKeyDown(event) {
-        if (this.#currentScene && this.#currentScene.handleKeyDown) {
-            this.#currentScene.handleKeyDown(event);
+    keyDown(event) {
+        if (this.#currentScene) {
+            this.#currentScene.onKeyDown(event);
         }
     }
 
-    handleKeyUp(event) {
-        if (this.#currentScene && this.#currentScene.handleKeyUp) {
-            this.#currentScene.handleKeyUp(event);
+    keyUp(event) {
+        if (this.#currentScene) {
+            this.#currentScene.onKeyUp(event);
         }
     }
 }
