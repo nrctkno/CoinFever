@@ -93,8 +93,8 @@ class Scene {
     }
 
     setup() {}
-    draw() {}
     tearDown() {}
+    onRender() {}
     onTick(currentTime) {}
     onKeyDown(event) {}
     onKeyUp(event) {}
@@ -119,7 +119,7 @@ class SceneManager {
         return this.#previousScene
     }
 
-    changeScene(newSceneClass, ...args) {
+    change(newSceneClass, ...args) {
         if (this.#currentScene) {
             this.#currentScene.tearDown()
         }
@@ -134,9 +134,9 @@ class SceneManager {
         }
     }
 
-    draw() {
+    render() {
         if (this.#currentScene) {
-            this.#currentScene.draw()
+            this.#currentScene.onRender()
         }
     }
 

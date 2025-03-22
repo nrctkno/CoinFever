@@ -23,7 +23,7 @@ class StartScene extends Scene {
         })
     }
 
-    draw() {
+    onRender() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         //draw BG
@@ -47,7 +47,7 @@ class StartScene extends Scene {
 
     onKeyDown(event) {
         if (event.code === 'Space') {
-            this.manager.changeScene(Level1Scene)
+            this.manager.change(Level1Scene)
         }
     }
 }
@@ -154,7 +154,7 @@ class Level1Scene extends Scene {
 
         // Check game over condition
         if (this.timeLeft <= 0) {
-            this.manager.changeScene(GameOverScene, this.score)
+            this.manager.change(GameOverScene, this.score)
             return
         }
 
@@ -233,7 +233,7 @@ class Level1Scene extends Scene {
         }
     }
 
-    draw() {
+    onRender() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         //draw sky
@@ -297,10 +297,10 @@ class GameOverScene extends Scene {
         this.manager.engine().audio().stop(this.assets.songStart)
     }
 
-    draw() {
+    onRender() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        this.manager.previousScene().draw()
+        this.manager.previousScene().onRender()
 
         // Draw game over overlay
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
@@ -319,7 +319,7 @@ class GameOverScene extends Scene {
 
     onKeyDown(event) {
         if (event.code === 'Space') {
-            this.manager.changeScene(Level1Scene)
+            this.manager.change(Level1Scene)
         }
     }
 }
@@ -332,10 +332,10 @@ const engine = new Engine()
 // Update main game loop and event handlers
 function gameLoop(currentTime) {
     engine.scene().tick(currentTime)
-    engine.scene().draw()
+    engine.scene().render()
     gameLoopId = requestAnimationFrame(gameLoop)
 }
 
 // Initialize with the start scenario
-engine.scene().changeScene(StartScene)
+engine.scene().change(StartScene)
 gameLoopId = requestAnimationFrame(gameLoop)
