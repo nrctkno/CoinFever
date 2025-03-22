@@ -9,5 +9,6 @@ The game is a simple 2D platformer where the player collects coins.
 ## How to play
 
 1. Open index.html in a browser.
-2. Click on the screen to start the game.
-3. Use the arrow keys to move the player.
+2. Use the arrow keys to move the player.
+
+<img src="doc/screenshot.png" alt="Screenshot of the game" width="600"/>
