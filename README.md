@@ -1,6 +1,7 @@
 # Coin fever
 
-A tiny game mostly done with AI.
+A tiny game partially done with AI tools, as a way to experiment with them.
+The game is a simple 2D platformer where the player collects coins.
 
 - Music: [suno.ai](https://suno.com)
 - Code scaffold and refactoring: [claude.ai](https://claude.ai)

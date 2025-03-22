@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d')
 // Environment constants
 const GRAVITY = 0.5
 const FRICTION = 0.8
-const LEVEL_DURATION = 10 // seconds
+const LEVEL1_DURATION = 60 // seconds
 
 // Asset constants
 const IMG_GOAL = 'data:image/webp;base64,UklGRrICAABXRUJQVlA4TKYCAAAvE8AEEGflJrZtV9n3/vyJFVIwgX8J9FTxvXOPDceRJDlK9aC1/GMS/v/w4SSwM+06kmxVmT3PcMiA/BMgIvtyl3vPso1t28Z6yO6I/nSgAP0X5KU3vQLwys0PhmCbGry8i6hMVSmoKP0o/1h8tfyAJH/If8RXSIiq/4TFl/nDMLBhJQQwJVSW2cKwUYlKqEn7WaWoCVQGWGz8q6CkUQxre4+VCkTS1Oqu9IdB/UIgai2MKOsqEMCcor/8Z7ioVGdq7UCGqrnIUQYY1MtlRh86oUalffu2N66r4qo2BfEhJxdsGMNiA8OFcRHy22s/YGmLnyJh9U+nT38GENsOm3mNMZhqMYzLqOvr8JhkEgZUtnz0ToRcEiGMa7tdxlIACXdqA4PJPyEMK2DLTepOJi3bkK2FLQg2Up2MkHTyu7ZqJUKOF3P1np9HdS7Dtx/oH+n9Nu7vo3GNAAhggSA8br7lvyVmUo31lLNJ8s+0jhNkUGveeQEmhECOz/IGMscUIGzbdjzV/GQb68vLy1yu2c6cmW3XbGRj/pc5ov8TAP/58B4IfNz/7DWscdntdFX45QdetdniZLOopl2Z9xsv18aZv8BgtAvTnRLvF69qG8+Qnu3x3CHnIqz8+VPYzDHGRyfubKKQ65NJXBAAHjSWueSIKCt/9vAyr2S4V/kI8O5y6uMiYxyVZdUIUtjFZLwBBOzsmqToWPeSFo1CCloEJP8nVm1WaiZat0zJR4pbR4kBgA8aVZuSkHNUUTVTetVIWF/5ALhXmRYz0nL3hcKDy/K+qQHpEwCE94bqbpDLre0rz9nGOC4EAPCiaDutv771eIqa8WKs/PkTeCUd7eTjhqbukQmsxAtfe+WDPUzB2Fo/Tu6F75+DSgaJuCoNPcOPH998gY8n+E8='
@@ -13,62 +13,11 @@ const AUD_SONG_START = './audio/songStart.mp3'
 const AUD_SONG_ACTION = './audio/songAction.mp3'
 const AUD_FX_GOAL = './audio/fxGoal.mp3'
 
-const Engine = {
-    checkCollision: function (obj1, obj2) {
-        return obj1.x < obj2.x + obj2.width &&
-            obj1.x + obj1.width > obj2.x &&
-            obj1.y < obj2.y + obj2.height &&
-            obj1.y + obj1.height > obj2.y
-    },
-
-    loadAudios: function(audioDefinitions) {
-        const audios = {};
-        for (const [name, config] of Object.entries(audioDefinitions)) {
-            const audio = new Audio(config.src);
-            audio.loop = config.loop || false;
-            audios[name] = audio;
-        }
-        return audios;
-    },
-
-    loadImages: function(imageDefinitions) {
-        const images = {};
-        for (const [name, imageData] of Object.entries(imageDefinitions)) {
-            const image = new Image();
-            image.src = imageData.src;
-            images[name] = image;
-        }
-        return images;
-    },
-
-    playAudio: function (audio) {
-        audio.currentTime = 0
-        audio.play().catch(e => console.log("Audio play failed:", e))
-    },
-
-    stopAudio: function (audio) {
-        audio.pause()
-        audio.currentTime = 0
-    }
-}
-
-class Scene {
-    constructor() {
-        this.audios = {};
-        this.images = {};
-    }
-
-    init() {}
-    cleanup() {}
-    update(currentTime) {}
-    draw() {}
-    handleKeyDown(event) {}
-    handleKeyUp(event) {}
-}
-
 class StartScene extends Scene {
-    constructor() {
+    constructor(manager) {
         super();
+
+        this.manager = manager;
 
         this.audios = Engine.loadAudios({
             songStart: {
@@ -124,7 +73,7 @@ class StartScene extends Scene {
 
     handleKeyDown(event) {
         if (event.code === 'Space') {
-            SceneManager.changeScene(new Level1Scene());
+            this.manager.changeScene(new Level1Scene(this.manager));
         }
     }
 
@@ -135,8 +84,10 @@ class StartScene extends Scene {
 
 class Level1Scene extends Scene {
 
-    constructor() {
+    constructor(manager) {
         super();
+
+        this.manager = manager;
 
         this.GOAL_SIZE = 20
         this.INITIAL_GOAL_COUNT = 5
@@ -167,7 +118,7 @@ class Level1Scene extends Scene {
         this.keys = {};
         this.goals = [];
         this.score = 0;
-        this.timeLeft = LEVEL_DURATION;
+        this.timeLeft = LEVEL1_DURATION;
         this.lastGoalSpawnTime = 0;
         this.lastUpdateTime = 0;
 
@@ -197,7 +148,7 @@ class Level1Scene extends Scene {
         this.keys = {};
         this.goals = [];
         this.score = 0;
-        this.timeLeft = LEVEL_DURATION;
+        this.timeLeft = LEVEL1_DURATION;
         this.lastGoalSpawnTime = 0;
         this.lastUpdateTime = performance.now();
 
@@ -220,15 +171,6 @@ class Level1Scene extends Scene {
         Engine.stopAudio(this.audios.songAction);
     }
 
-    drawSky() {
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
-        gradient.addColorStop(0, '#87CEEB')
-        gradient.addColorStop(1, '#FFF')
-        ctx.fillStyle = gradient
-
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
-
     drawPlatforms() {
         this.platforms.forEach(platform => {
             const gradient = ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height)
@@ -238,10 +180,6 @@ class Level1Scene extends Scene {
 
             ctx.fillRect(platform.x, platform.y, platform.width, platform.height)
         })
-    }
-
-    drawPlayer() {
-        ctx.drawImage(this.images.hero, this.player.x, this.player.y, this.player.width, this.player.height)
     }
 
     drawStatus() {
@@ -274,7 +212,7 @@ class Level1Scene extends Scene {
 
         // Check game over condition
         if (this.timeLeft <= 0) {
-            SceneManager.changeScene(new GameOverScene(this.score));
+            this.manager.changeScene(new GameOverScene(this.manager, this.score));
             return;
         }
 
@@ -355,7 +293,14 @@ class Level1Scene extends Scene {
 
     draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.drawSky();
+
+        //draw sky
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+        gradient.addColorStop(0, '#87CEEB')
+        gradient.addColorStop(1, '#FFF')
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
         this.drawPlatforms();
 
         // Draw goals
@@ -363,7 +308,9 @@ class Level1Scene extends Scene {
             ctx.drawImage(this.images.goal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE);
         });
 
-        this.drawPlayer();
+        //draw player
+        ctx.drawImage(this.images.hero, this.player.x, this.player.y, this.player.width, this.player.height)
+
         this.drawStatus();
     }
 
@@ -377,8 +324,10 @@ class Level1Scene extends Scene {
 }
 
 class GameOverScene extends Scene {
-    constructor(finalScore = 0) {
+    constructor(manager, finalScore = 0) {
         super();
+
+        this.manager = manager;
 
         this.audios = Engine.loadAudios({
             songStart: {
@@ -398,27 +347,27 @@ class GameOverScene extends Scene {
         Engine.stopAudio(this.audios.songStart);
     }
 
-    drawSky() {
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
-        gradient.addColorStop(0, '#87CEEB')
-        gradient.addColorStop(1, '#FFF')
-        ctx.fillStyle = gradient
-
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
-
     update(currentTime) {
         // Nothing to update in game over screen
     }
 
     draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.drawSky();
+
+        /*
+        //draw sky
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+        gradient.addColorStop(0, '#87CEEB')
+        gradient.addColorStop(1, '#FFF')
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
 
         // Reference to Level1Scene for drawing platforms and player
         const dummyLevel = new Level1Scene();
-        dummyLevel.drawPlatforms();
-        dummyLevel.drawPlayer();
+        dummyLevel.draw();
+        */
+
+        this.manager.previousScene.draw();
 
         // Draw game over overlay
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -437,7 +386,7 @@ class GameOverScene extends Scene {
 
     handleKeyDown(event) {
         if (event.code === 'Space') {
-            SceneManager.changeScene(new Level1Scene());
+            this.manager.changeScene(new Level1Scene(this.manager));
         }
     }
 
@@ -446,71 +395,27 @@ class GameOverScene extends Scene {
     }
 }
 
-// Scene Manager
-const SceneManager = {
-    currentScene: null,
-
-    initialize: function(startingScene) {
-        this.currentScene = startingScene;
-        if (this.currentScene && this.currentScene.init) {
-            this.currentScene.init();
-        }
-    },
-
-    changeScene: function(newScene) {
-        if (this.currentScene && this.currentScene.cleanup) {
-            this.currentScene.cleanup();
-        }
-        this.currentScene = newScene;
-        if (this.currentScene && this.currentScene.init) {
-            this.currentScene.init();
-        }
-    },
-
-    update: function(currentTime) {
-        if (this.currentScene && this.currentScene.update) {
-            this.currentScene.update(currentTime);
-        }
-    },
-
-    draw: function() {
-        if (this.currentScene && this.currentScene.draw) {
-            this.currentScene.draw();
-        }
-    },
-
-    handleKeyDown: function(event) {
-        if (this.currentScene && this.currentScene.handleKeyDown) {
-            this.currentScene.handleKeyDown(event);
-        }
-    },
-
-    handleKeyUp: function(event) {
-        if (this.currentScene && this.currentScene.handleKeyUp) {
-            this.currentScene.handleKeyUp(event);
-        }
-    }
-};
-
 //main
 
 let gameLoopId
+const sceneManager = new SceneManager();
+
 
 // Update main game loop and event handlers
 function gameLoop(currentTime) {
-    SceneManager.update(currentTime);
-    SceneManager.draw();
+    sceneManager.update(currentTime);
+    sceneManager.draw();
     gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener('keydown', (e) => {
-    SceneManager.handleKeyDown(e);
+    sceneManager.handleKeyDown(e);
 });
 
 document.addEventListener('keyup', (e) => {
-    SceneManager.handleKeyUp(e);
+    sceneManager.handleKeyUp(e);
 });
 
 // Initialize with the start scenario
-SceneManager.initialize(new StartScene());
+sceneManager.initialize(new StartScene(sceneManager));
 gameLoopId = requestAnimationFrame(gameLoop);
