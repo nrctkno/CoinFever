@@ -92,9 +92,9 @@ class Scene {
         this.manager = manager
     }
 
-    init() {}
+    setup() {}
     draw() {}
-    cleanup() {}
+    tearDown() {}
     onTick(currentTime) {}
     onKeyDown(event) {}
     onKeyUp(event) {}
@@ -121,11 +121,11 @@ class SceneManager {
 
     changeScene(newSceneClass, ...args) {
         if (this.#currentScene) {
-            this.#currentScene.cleanup()
+            this.#currentScene.tearDown()
         }
         this.#previousScene = this.#currentScene
         this.#currentScene = new newSceneClass(this, ...args)
-        this.#currentScene.init()
+        this.#currentScene.setup()
     }
 
     tick(currentTime) {

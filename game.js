@@ -99,7 +99,7 @@ class Level1Scene extends Scene {
         ]
     }
 
-    init() {
+    setup() {
         this.keys = {}
         this.goals = []
         this.score = 0
@@ -122,7 +122,7 @@ class Level1Scene extends Scene {
         this.manager.engine().audio().play(this.assets.songAction)
     }
 
-    cleanup() {
+    tearDown() {
         this.manager.engine().audio().stop(this.assets.songAction)
     }
 
@@ -289,11 +289,11 @@ class GameOverScene extends Scene {
         this.score = finalScore
     }
 
-    init() {
+    setup() {
         this.manager.engine().audio().play(this.assets.songStart)
     }
 
-    cleanup() {
+    tearDown() {
         this.manager.engine().audio().stop(this.assets.songStart)
     }
 
