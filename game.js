@@ -14,31 +14,13 @@ const AUD_SONG_ACTION = './audio/songAction.mp3'
 const AUD_FX_GOAL = './audio/fxGoal.mp3'
 
 class StartScene extends Scene {
+
     constructor(manager) {
-        super();
+        super(manager);
 
-        this.manager = manager;
-
-        this.audios = Engine.loadAudios({
-            songStart: {
-                src: AUD_SONG_START,
-                loop: true
-            }
-        });
-
-        this.images = Engine.loadImages({
-            goal: {
-                src: IMG_GOAL
-            }
-        });
-    }
-
-    init() {
-        Engine.playAudio(this.audios.songStart);
-    }
-
-    cleanup() {
-        Engine.stopAudio(this.audios.songStart);
+        this.assets = this.manager.engine().loadAssets({
+            imgGoal: new ImageDefinition(IMG_GOAL)
+        })
     }
 
     update(currentTime) {
@@ -47,47 +29,37 @@ class StartScene extends Scene {
 
     draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.drawBG();
-        this.drawTitle();
-        ctx.drawImage(this.images.goal, 380, 100, 40, 40);
-    }
 
-    drawBG() {
+        //draw BG
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
         gradient.addColorStop(0, '#87CEEB')
         gradient.addColorStop(1, '#FFF')
         ctx.fillStyle = gradient
-
         ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
 
-    drawTitle() {
+        //draw title
         ctx.fillStyle = '#fff';
         ctx.font = '36px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(`Coin Fever`, 400, 200);
-
         ctx.font = '24px Arial';
         ctx.fillText('Press Space to Start', canvas.width / 2, canvas.height / 2 + 60);
+
+        //draw big goal
+        ctx.drawImage(this.assets.imgGoal, 380, 100, 40, 40);
     }
 
     handleKeyDown(event) {
         if (event.code === 'Space') {
-            this.manager.changeScene(new Level1Scene(this.manager));
+            this.manager.changeScene(Level1Scene);
         }
-    }
-
-    handleKeyUp(event) {
-        // Nothing needed here
     }
 }
 
 class Level1Scene extends Scene {
 
     constructor(manager) {
-        super();
-
-        this.manager = manager;
+        super(manager);
 
         this.GOAL_SIZE = 20
         this.INITIAL_GOAL_COUNT = 5
@@ -95,24 +67,11 @@ class Level1Scene extends Scene {
         this.DEFAULT_PLAYER_SPEED = 5
         this.DEFAULT_JUMP_STRENGTH = 12
 
-        this.audios = Engine.loadAudios({
-            songAction: {
-                src: AUD_SONG_ACTION,
-                loop: true
-            },
-            fxGoal: {
-                src: AUD_FX_GOAL,
-                loop: false
-            }
-        });
-
-        this.images = Engine.loadImages({
-            goal: {
-                src: IMG_GOAL
-            },
-            hero: {
-                src: IMG_HERO
-            }
+        this.assets = this.manager.engine().loadAssets({
+            songAction: new AudioDefinition(AUD_SONG_ACTION, true),
+            fxGoal: new AudioDefinition(AUD_FX_GOAL, false),
+            imgGoal: new ImageDefinition(IMG_GOAL),
+            imgHero: new ImageDefinition(IMG_HERO)
         });
 
         this.keys = {};
@@ -164,30 +123,11 @@ class Level1Scene extends Scene {
             this.spawnGoal();
         }
 
-        Engine.playAudio(this.audios.songAction);
+        this.manager.engine().audio().play(this.assets.songAction);
     }
 
     cleanup() {
-        Engine.stopAudio(this.audios.songAction);
-    }
-
-    drawPlatforms() {
-        this.platforms.forEach(platform => {
-            const gradient = ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height)
-            gradient.addColorStop(0, '#33CC00')
-            gradient.addColorStop(1, '#CC5544')
-            ctx.fillStyle = gradient
-
-            ctx.fillRect(platform.x, platform.y, platform.width, platform.height)
-        })
-    }
-
-    drawStatus() {
-        ctx.fillStyle = '#fff';
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(`Time: ${Math.ceil(this.timeLeft)}s`, 10, 30);
-        ctx.fillText(`Score: ${this.score}`, 10, 60);
+        this.manager.engine().audio().stop(this.assets.songAction);
     }
 
     spawnGoal() {
@@ -200,7 +140,9 @@ class Level1Scene extends Scene {
                 height: this.GOAL_SIZE,
                 spawnTime: Date.now()
             };
-        } while (this.platforms.some(platform => Engine.checkCollision(newGoal, platform)));
+        } while (
+            this.platforms.some(platform => this.manager.engine().checkCollision(newGoal, platform))
+        );
         this.goals.push(newGoal);
     }
 
@@ -212,7 +154,7 @@ class Level1Scene extends Scene {
 
         // Check game over condition
         if (this.timeLeft <= 0) {
-            this.manager.changeScene(new GameOverScene(this.manager, this.score));
+            this.manager.changeScene(GameOverScene, this.score);
             return;
         }
 
@@ -250,7 +192,7 @@ class Level1Scene extends Scene {
 
         // Platform collisions
         this.platforms.forEach(platform => {
-            if (Engine.checkCollision(this.player, platform)) {
+            if (this.manager.engine().checkCollision(this.player, platform)) {
                 if (this.player.y + this.player.height - this.player.yVelocity <= platform.y) {
                     this.player.y = platform.y - this.player.height;
                     this.player.yVelocity = 0;
@@ -273,9 +215,9 @@ class Level1Scene extends Scene {
 
         // Goal collisions
         this.goals = this.goals.filter(goal => {
-            if (Engine.checkCollision(this.player, goal)) {
+            if (this.manager.engine().checkCollision(this.player, goal)) {
                 this.score += 10;
-                Engine.playAudio(this.audios.fxGoal);
+                this.manager.engine().audio().play(this.assets.fxGoal);
                 return false;
             }
             return true;
@@ -301,17 +243,30 @@ class Level1Scene extends Scene {
         ctx.fillStyle = gradient
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        this.drawPlatforms();
+        //draw platforms
+        this.platforms.forEach(platform => {
+            const gradient = ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height)
+            gradient.addColorStop(0, '#33CC00')
+            gradient.addColorStop(1, '#CC5544')
+            ctx.fillStyle = gradient
+
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height)
+        })
 
         // Draw goals
         this.goals.forEach(goal => {
-            ctx.drawImage(this.images.goal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE);
+            ctx.drawImage(this.assets.imgGoal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE);
         });
 
         //draw player
-        ctx.drawImage(this.images.hero, this.player.x, this.player.y, this.player.width, this.player.height)
+        ctx.drawImage(this.assets.imgHero, this.player.x, this.player.y, this.player.width, this.player.height)
 
-        this.drawStatus();
+        //draw status
+        ctx.fillStyle = '#fff';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(`Time: ${Math.ceil(this.timeLeft)}s`, 10, 30);
+        ctx.fillText(`Score: ${this.score}`, 10, 60);
     }
 
     handleKeyDown(event) {
@@ -325,49 +280,27 @@ class Level1Scene extends Scene {
 
 class GameOverScene extends Scene {
     constructor(manager, finalScore = 0) {
-        super();
+        super(manager);
 
-        this.manager = manager;
-
-        this.audios = Engine.loadAudios({
-            songStart: {
-                src: AUD_SONG_START,
-                loop: true
-            }
+        this.assets = this.manager.engine().loadAssets({
+            songStart: new AudioDefinition(AUD_SONG_START, true)
         });
 
         this.score = finalScore;
     }
 
     init() {
-        Engine.playAudio(this.audios.songStart);
+        this.manager.engine().audio().play(this.assets.songStart);
     }
 
     cleanup() {
-        Engine.stopAudio(this.audios.songStart);
-    }
-
-    update(currentTime) {
-        // Nothing to update in game over screen
+        this.manager.engine().audio().stop(this.assets.songStart);
     }
 
     draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        /*
-        //draw sky
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
-        gradient.addColorStop(0, '#87CEEB')
-        gradient.addColorStop(1, '#FFF')
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // Reference to Level1Scene for drawing platforms and player
-        const dummyLevel = new Level1Scene();
-        dummyLevel.draw();
-        */
-
-        this.manager.previousScene.draw();
+        this.manager.previousScene().draw();
 
         // Draw game over overlay
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -386,20 +319,16 @@ class GameOverScene extends Scene {
 
     handleKeyDown(event) {
         if (event.code === 'Space') {
-            this.manager.changeScene(new Level1Scene(this.manager));
+            this.manager.changeScene(Level1Scene);
         }
-    }
-
-    handleKeyUp(event) {
-        // Nothing needed here
     }
 }
 
 //main
 
 let gameLoopId
-const sceneManager = new SceneManager();
-
+const engine = new Engine(/*canvas, ctx*/);
+const sceneManager = new SceneManager(engine);
 
 // Update main game loop and event handlers
 function gameLoop(currentTime) {
@@ -417,5 +346,5 @@ document.addEventListener('keyup', (e) => {
 });
 
 // Initialize with the start scenario
-sceneManager.initialize(new StartScene(sceneManager));
+sceneManager.changeScene(StartScene);
 gameLoopId = requestAnimationFrame(gameLoop);
