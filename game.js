@@ -279,6 +279,7 @@ class Level1Scene extends Scene {
 }
 
 class GameOverScene extends Scene {
+
     constructor(manager, finalScore = 0) {
         super(manager)
 
@@ -324,18 +325,9 @@ class GameOverScene extends Scene {
     }
 }
 
-//main
-
-let gameLoopId
+/**
+ * main
+ */
 const engine = new Engine()
-
-// Update main game loop and event handlers
-function gameLoop(currentTime) {
-    engine.scene().tick(currentTime)
-    engine.scene().render()
-    gameLoopId = requestAnimationFrame(gameLoop)
-}
-
-// Initialize with the start scenario
 engine.scene().change(StartScene)
-gameLoopId = requestAnimationFrame(gameLoop)
+engine.run()

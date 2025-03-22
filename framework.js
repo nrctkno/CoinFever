@@ -51,21 +51,33 @@ class Engine {
         }
         return assets
     }
+
+    run() {
+        const loop = (currentTime) => {
+            this.#scene.tick(currentTime)
+            this.#scene.render()
+            requestAnimationFrame(loop)
+        }
+        requestAnimationFrame(loop)
+    }
 }
 
 class AssetDefinition {
+
     constructor(src) {
         this.src = src
     }
 }
 
 class ImageDefinition extends AssetDefinition {
+
     constructor(src, width, height) {
         super(src)
     }
 }
 
 class AudioDefinition extends AssetDefinition {
+
     constructor(src, loop = false) {
         super(src)
         this.loop = loop
@@ -73,6 +85,7 @@ class AudioDefinition extends AssetDefinition {
 }
 
 class AudioManager {
+
     constructor() {
     }
 
