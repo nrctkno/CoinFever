@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d')
 // Environment constants
 const GRAVITY = 0.5
 const FRICTION = 0.8
-const LEVEL1_DURATION = 60 // seconds
+const LEVEL1_DURATION = 5 // seconds
 
 // Asset constants
 const IMG_GOAL = 'data:image/webp;base64,UklGRrICAABXRUJQVlA4TKYCAAAvE8AEEGflJrZtV9n3/vyJFVIwgX8J9FTxvXOPDceRJDlK9aC1/GMS/v/w4SSwM+06kmxVmT3PcMiA/BMgIvtyl3vPso1t28Z6yO6I/nSgAP0X5KU3vQLwys0PhmCbGry8i6hMVSmoKP0o/1h8tfyAJH/If8RXSIiq/4TFl/nDMLBhJQQwJVSW2cKwUYlKqEn7WaWoCVQGWGz8q6CkUQxre4+VCkTS1Oqu9IdB/UIgai2MKOsqEMCcor/8Z7ioVGdq7UCGqrnIUQYY1MtlRh86oUalffu2N66r4qo2BfEhJxdsGMNiA8OFcRHy22s/YGmLnyJh9U+nT38GENsOm3mNMZhqMYzLqOvr8JhkEgZUtnz0ToRcEiGMa7tdxlIACXdqA4PJPyEMK2DLTepOJi3bkK2FLQg2Up2MkHTyu7ZqJUKOF3P1np9HdS7Dtx/oH+n9Nu7vo3GNAAhggSA8br7lvyVmUo31lLNJ8s+0jhNkUGveeQEmhECOz/IGMscUIGzbdjzV/GQb68vLy1yu2c6cmW3XbGRj/pc5ov8TAP/58B4IfNz/7DWscdntdFX45QdetdniZLOopl2Z9xsv18aZv8BgtAvTnRLvF69qG8+Qnu3x3CHnIqz8+VPYzDHGRyfubKKQ65NJXBAAHjSWueSIKCt/9vAyr2S4V/kI8O5y6uMiYxyVZdUIUtjFZLwBBOzsmqToWPeSFo1CCloEJP8nVm1WaiZat0zJR4pbR4kBgA8aVZuSkHNUUTVTetVIWF/5ALhXmRYz0nL3hcKDy/K+qQHpEwCE94bqbpDLre0rz9nGOC4EAPCiaDutv771eIqa8WKs/PkTeCUd7eTjhqbukQmsxAtfe+WDPUzB2Fo/Tu6F75+DSgaJuCoNPcOPH998gY8n+E8='
@@ -16,7 +16,7 @@ const AUD_FX_GOAL = './audio/fxGoal.mp3'
 class StartScene extends Scene {
 
     constructor(manager) {
-        super(manager);
+        super(manager)
 
         this.assets = this.manager.engine().loadAssets({
             imgGoal: new ImageDefinition(IMG_GOAL)
@@ -24,7 +24,7 @@ class StartScene extends Scene {
     }
 
     draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         //draw BG
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
@@ -34,20 +34,20 @@ class StartScene extends Scene {
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
         //draw title
-        ctx.fillStyle = '#fff';
-        ctx.font = '36px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(`Coin Fever`, 400, 200);
-        ctx.font = '24px Arial';
-        ctx.fillText('Press Space to Start', canvas.width / 2, canvas.height / 2 + 60);
+        ctx.fillStyle = '#fff'
+        ctx.font = '36px Arial'
+        ctx.textAlign = 'center'
+        ctx.fillText(`Coin Fever`, 400, 200)
+        ctx.font = '24px Arial'
+        ctx.fillText('Press Space to Start', canvas.width / 2, canvas.height / 2 + 60)
 
         //draw big goal
-        ctx.drawImage(this.assets.imgGoal, 380, 100, 40, 40);
+        ctx.drawImage(this.assets.imgGoal, 380, 100, 40, 40)
     }
 
     onKeyDown(event) {
         if (event.code === 'Space') {
-            this.manager.changeScene(Level1Scene);
+            this.manager.changeScene(Level1Scene)
         }
     }
 }
@@ -55,7 +55,7 @@ class StartScene extends Scene {
 class Level1Scene extends Scene {
 
     constructor(manager) {
-        super(manager);
+        super(manager)
 
         this.GOAL_SIZE = 20
         this.INITIAL_GOAL_COUNT = 5
@@ -68,14 +68,14 @@ class Level1Scene extends Scene {
             fxGoal: new AudioDefinition(AUD_FX_GOAL, false),
             imgGoal: new ImageDefinition(IMG_GOAL),
             imgHero: new ImageDefinition(IMG_HERO)
-        });
+        })
 
-        this.keys = {};
-        this.goals = [];
-        this.score = 0;
-        this.timeLeft = LEVEL1_DURATION;
-        this.lastGoalSpawnTime = 0;
-        this.lastUpdateTime = 0;
+        this.keys = {}
+        this.goals = []
+        this.score = 0
+        this.timeLeft = LEVEL1_DURATION
+        this.lastGoalSpawnTime = 0
+        this.lastUpdateTime = 0
 
         // Define player within the scene
         this.player = {
@@ -88,7 +88,7 @@ class Level1Scene extends Scene {
             xVelocity: 0,
             yVelocity: 0,
             isJumping: false
-        };
+        }
 
         // Define platforms for this level
         this.platforms = [
@@ -96,38 +96,38 @@ class Level1Scene extends Scene {
             { x: 300, y: 250, width: 200, height: 20 },
             { x: 600, y: 150, width: 200, height: 20 },
             { x: 100, y: 200, width: 150, height: 20 }
-        ];
+        ]
     }
 
     init() {
-        this.keys = {};
-        this.goals = [];
-        this.score = 0;
-        this.timeLeft = LEVEL1_DURATION;
-        this.lastGoalSpawnTime = 0;
-        this.lastUpdateTime = performance.now();
+        this.keys = {}
+        this.goals = []
+        this.score = 0
+        this.timeLeft = LEVEL1_DURATION
+        this.lastGoalSpawnTime = 0
+        this.lastUpdateTime = performance.now()
 
         // Reset player position
-        this.player.x = 50;
-        this.player.y = 200;
-        this.player.xVelocity = 0;
-        this.player.yVelocity = 0;
-        this.player.isJumping = false;
+        this.player.x = 50
+        this.player.y = 200
+        this.player.xVelocity = 0
+        this.player.yVelocity = 0
+        this.player.isJumping = false
 
         // Spawn initial goals
         for (let i = 0; i < this.INITIAL_GOAL_COUNT; i++) {
-            this.spawnGoal();
+            this.spawnGoal()
         }
 
-        this.manager.engine().audio().play(this.assets.songAction);
+        this.manager.engine().audio().play(this.assets.songAction)
     }
 
     cleanup() {
-        this.manager.engine().audio().stop(this.assets.songAction);
+        this.manager.engine().audio().stop(this.assets.songAction)
     }
 
     spawnGoal() {
-        let newGoal;
+        let newGoal
         // Finds a free spot for the goal that doesn't overlap with platforms
         do {
             newGoal = {
@@ -136,103 +136,105 @@ class Level1Scene extends Scene {
                 width: this.GOAL_SIZE,
                 height: this.GOAL_SIZE,
                 spawnTime: Date.now()
-            };
+            }
         } while (
-            this.platforms.some(platform => this.manager.engine().checkCollision(newGoal, platform))
-        );
+            this.platforms.some(
+                platform => this.manager.engine().checkCollision(newGoal, platform)
+            )
+        )
 
-        this.goals.push(newGoal);
+        this.goals.push(newGoal)
     }
 
     onTick(currentTime) {
         // Calculate delta time
-        const deltaTime = (currentTime - this.lastUpdateTime) / 1000;
-        this.lastUpdateTime = currentTime;
-        this.timeLeft -= deltaTime;
+        const deltaTime = (currentTime - this.lastUpdateTime) / 1000
+        this.lastUpdateTime = currentTime
+        this.timeLeft -= deltaTime
 
         // Check game over condition
         if (this.timeLeft <= 0) {
-            this.manager.changeScene(GameOverScene, this.score);
-            return;
+            this.manager.changeScene(GameOverScene, this.score)
+            return
         }
 
         // Spawn new goals
         if (currentTime - this.lastGoalSpawnTime > this.GOAL_SPAWN_TIME) {
-            this.goals = this.goals.filter(goal => currentTime - goal.spawnTime < this.GOAL_SPAWN_TIME);
-            this.spawnGoal();
-            this.lastGoalSpawnTime = currentTime;
+            this.goals = this.goals.filter(goal => currentTime - goal.spawnTime < this.GOAL_SPAWN_TIME)
+            this.spawnGoal()
+            this.lastGoalSpawnTime = currentTime
         }
 
         // Ensure there's always at least one goal
         if (this.goals.length === 0) {
-            this.spawnGoal();
-            this.lastGoalSpawnTime = currentTime;
+            this.spawnGoal()
+            this.lastGoalSpawnTime = currentTime
         }
 
         // Player movement
         if (this.keys['ArrowLeft']) {
-            this.player.xVelocity = -this.player.speed;
+            this.player.xVelocity = -this.player.speed
         } else if (this.keys['ArrowRight']) {
-            this.player.xVelocity = this.player.speed;
+            this.player.xVelocity = this.player.speed
         } else {
-            this.player.xVelocity *= FRICTION;
+            this.player.xVelocity *= FRICTION
         }
 
         if (this.keys['ArrowUp'] && !this.player.isJumping) {
-            this.player.yVelocity = -this.player.jumpStrength;
-            this.player.isJumping = true;
+            this.player.yVelocity = -this.player.jumpStrength
+            this.player.isJumping = true
         }
 
-        this.player.yVelocity += GRAVITY;
+        this.player.yVelocity += GRAVITY
 
-        this.player.x += this.player.xVelocity;
-        this.player.y += this.player.yVelocity;
+        this.player.x += this.player.xVelocity
+        this.player.y += this.player.yVelocity
 
         // Platform collisions
         this.platforms.forEach(platform => {
             if (this.manager.engine().checkCollision(this.player, platform)) {
                 if (this.player.y + this.player.height - this.player.yVelocity <= platform.y) {
-                    this.player.y = platform.y - this.player.height;
-                    this.player.yVelocity = 0;
-                    this.player.isJumping = false;
+                    this.player.y = platform.y - this.player.height
+                    this.player.yVelocity = 0
+                    this.player.isJumping = false
                 }
                 else if (this.player.y - this.player.yVelocity >= platform.y + platform.height) {
-                    this.player.y = platform.y + platform.height;
-                    this.player.yVelocity = 0;
+                    this.player.y = platform.y + platform.height
+                    this.player.yVelocity = 0
                 }
                 else {
                     if (this.player.x + this.player.width - this.player.xVelocity <= platform.x) {
-                        this.player.x = platform.x - this.player.width;
+                        this.player.x = platform.x - this.player.width
                     } else if (this.player.x - this.player.xVelocity >= platform.x + platform.width) {
-                        this.player.x = platform.x + platform.width;
+                        this.player.x = platform.x + platform.width
                     }
-                    this.player.xVelocity = 0;
+                    this.player.xVelocity = 0
                 }
             }
-        });
+        })
 
         // Goal collisions
         this.goals = this.goals.filter(goal => {
             if (this.manager.engine().checkCollision(this.player, goal)) {
-                this.score += 10;
-                this.manager.engine().audio().play(this.assets.fxGoal);
-                return false;
+                this.score += 10
+                this.manager.engine().audio().play(this.assets.fxGoal)
+                return false
             }
-            return true;
-        });
+            return true
+        })
 
         // Boundary collisions
-        if (this.player.x < 0) this.player.x = 0;
-        if (this.player.x + this.player.width > canvas.width) this.player.x = canvas.width - this.player.width;
+        if (this.player.x < 0) this.player.x = 0
+        if (this.player.x + this.player.width > canvas.width) this.player.x = canvas.width - this.player.width
         if (this.player.y + this.player.height > canvas.height) {
-            this.player.y = canvas.height - this.player.height;
-            this.player.yVelocity = 0;
-            this.player.isJumping = false;
+            this.player.y = canvas.height - this.player.height
+            this.player.yVelocity = 0
+            this.player.isJumping = false
         }
     }
 
     draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         //draw sky
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
@@ -253,71 +255,71 @@ class Level1Scene extends Scene {
 
         // Draw goals
         this.goals.forEach(goal => {
-            ctx.drawImage(this.assets.imgGoal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE);
-        });
+            ctx.drawImage(this.assets.imgGoal, goal.x, goal.y, this.GOAL_SIZE, this.GOAL_SIZE)
+        })
 
         //draw player
         ctx.drawImage(this.assets.imgHero, this.player.x, this.player.y, this.player.width, this.player.height)
 
         //draw status
-        ctx.fillStyle = '#fff';
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(`Time: ${Math.ceil(this.timeLeft)}s`, 10, 30);
-        ctx.fillText(`Score: ${this.score}`, 10, 60);
+        ctx.fillStyle = '#fff'
+        ctx.font = '14px Arial'
+        ctx.textAlign = 'left'
+        ctx.fillText(`Time: ${Math.ceil(this.timeLeft)}s`, 10, 30)
+        ctx.fillText(`Score: ${this.score}`, 10, 60)
     }
 
     onKeyDown(event) {
-        this.keys[event.code] = true;
+        this.keys[event.code] = true
     }
 
     onKeyUp(event) {
-        this.keys[event.code] = false;
+        this.keys[event.code] = false
     }
 }
 
 class GameOverScene extends Scene {
     constructor(manager, finalScore = 0) {
-        super(manager);
+        super(manager)
 
         this.assets = this.manager.engine().loadAssets({
             songStart: new AudioDefinition(AUD_SONG_START, true)
-        });
+        })
 
-        this.score = finalScore;
+        this.score = finalScore
     }
 
     init() {
-        this.manager.engine().audio().play(this.assets.songStart);
+        this.manager.engine().audio().play(this.assets.songStart)
     }
 
     cleanup() {
-        this.manager.engine().audio().stop(this.assets.songStart);
+        this.manager.engine().audio().stop(this.assets.songStart)
     }
 
     draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        this.manager.previousScene().draw();
+        this.manager.previousScene().draw()
 
         // Draw game over overlay
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        ctx.font = 'bold 48px Arial';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 30);
+        ctx.font = 'bold 48px Arial'
+        ctx.fillStyle = 'white'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 30)
 
-        ctx.font = '24px Arial';
-        ctx.fillText(`Final Score: ${this.score}`, canvas.width / 2, canvas.height / 2 + 20);
-        ctx.fillText('Press Space to Restart', canvas.width / 2, canvas.height / 2 + 60);
+        ctx.font = '24px Arial'
+        ctx.fillText(`Final Score: ${this.score}`, canvas.width / 2, canvas.height / 2 + 20)
+        ctx.fillText('Press Space to Restart', canvas.width / 2, canvas.height / 2 + 60)
     }
 
     onKeyDown(event) {
         if (event.code === 'Space') {
-            this.manager.changeScene(Level1Scene);
+            this.manager.changeScene(Level1Scene)
         }
     }
 }
@@ -325,24 +327,15 @@ class GameOverScene extends Scene {
 //main
 
 let gameLoopId
-const engine = new Engine();
-const sceneManager = new SceneManager(engine);
+const engine = new Engine()
 
 // Update main game loop and event handlers
 function gameLoop(currentTime) {
-    sceneManager.tick(currentTime);
-    sceneManager.draw();
-    gameLoopId = requestAnimationFrame(gameLoop);
+    engine.scene().tick(currentTime)
+    engine.scene().draw()
+    gameLoopId = requestAnimationFrame(gameLoop)
 }
 
-document.addEventListener('keydown', (e) => {
-    sceneManager.keyDown(e);
-});
-
-document.addEventListener('keyup', (e) => {
-    sceneManager.keyUp(e);
-});
-
 // Initialize with the start scenario
-sceneManager.changeScene(StartScene);
-gameLoopId = requestAnimationFrame(gameLoop);
+engine.scene().changeScene(StartScene)
+gameLoopId = requestAnimationFrame(gameLoop)
