@@ -104,21 +104,18 @@ class Level1Scene extends Scene {
         this.player = {
             speed: this.DEFAULT_PLAYER_SPEED,
             jumpStrength: this.DEFAULT_JUMP_STRENGTH,
-            x: 50,
-            y: 200,
-            width: 30,
-            height: 30,
-            xVelocity: 0,
-            yVelocity: 0,
+            pos: Point.from(50, 200),
+            size: Point.from(30, 30),
+            velocity: Point.from(0, 0),
             isJumping: false
         }
 
         // Define platforms for this level
         this.platforms = [
-            { x: 0, y: 350, width: 800, height: 50 },
-            { x: 300, y: 250, width: 200, height: 20 },
-            { x: 600, y: 150, width: 200, height: 20 },
-            { x: 100, y: 200, width: 150, height: 20 }
+            { pos: Point.from(0, 350), size: Point.from(800, 50) },
+            { pos: Point.from(300, 250), size: Point.from(200, 20) },
+            { pos: Point.from(600, 150), size: Point.from(200, 20) },
+            { pos: Point.from(100, 200), size: Point.from(150, 20) }
         ]
     }
 
@@ -131,10 +128,9 @@ class Level1Scene extends Scene {
         this.lastUpdateTime = performance.now()
 
         // Reset player position
-        this.player.x = 50
-        this.player.y = 200
-        this.player.xVelocity = 0
-        this.player.yVelocity = 0
+        this.player.pos = Point.from(50, 200),
+        this.player.velocity.x = 0
+        this.player.velocity.y = 0
         this.player.isJumping = false
 
         // Spawn initial goals
@@ -156,10 +152,14 @@ class Level1Scene extends Scene {
         // Finds a free spot for the goal that doesn't overlap with platforms
         do {
             newGoal = {
-                x: Math.random() * (cnv.width() - this.GOAL_SIZE),
-                y: Math.random() * (cnv.height() - this.GOAL_SIZE),
-                width: this.GOAL_SIZE,
-                height: this.GOAL_SIZE,
+                pos: Point.from(
+                    Math.random() * (cnv.width() - this.GOAL_SIZE),
+                    Math.random() * (cnv.height() - this.GOAL_SIZE)
+                ),
+                size: Point.from(
+                    this.GOAL_SIZE,
+                    this.GOAL_SIZE
+                ),
                 spawnTime: Date.now()
             }
         } while (
@@ -200,42 +200,42 @@ class Level1Scene extends Scene {
 
         // Player movement
         if (this.keys['ArrowLeft']) {
-            this.player.xVelocity = -this.player.speed
+            this.player.velocity.x = -this.player.speed
         } else if (this.keys['ArrowRight']) {
-            this.player.xVelocity = this.player.speed
+            this.player.velocity.x = this.player.speed
         } else {
-            this.player.xVelocity *= FRICTION
+            this.player.velocity.x *= FRICTION
         }
 
         if (this.keys['ArrowUp'] && !this.player.isJumping) {
-            this.player.yVelocity = -this.player.jumpStrength
+            this.player.velocity.y = -this.player.jumpStrength
             this.player.isJumping = true
         }
 
-        this.player.yVelocity += GRAVITY
+        this.player.velocity.y += GRAVITY
 
-        this.player.x += this.player.xVelocity
-        this.player.y += this.player.yVelocity
+        this.player.pos.x += this.player.velocity.x
+        this.player.pos.y += this.player.velocity.y
 
         // Platform collisions
         this.platforms.forEach(platform => {
             if (this.manager.engine().checkCollision(this.player, platform)) {
-                if (this.player.y + this.player.height - this.player.yVelocity <= platform.y) {
-                    this.player.y = platform.y - this.player.height
-                    this.player.yVelocity = 0
+                if (this.player.pos.y + this.player.size.y - this.player.velocity.y <= platform.pos.y) {
+                    this.player.pos.y = platform.pos.y - this.player.size.y
+                    this.player.velocity.y = 0
                     this.player.isJumping = false
                 }
-                else if (this.player.y - this.player.yVelocity >= platform.y + platform.height) {
-                    this.player.y = platform.y + platform.height
-                    this.player.yVelocity = 0
+                else if (this.player.pos.y - this.player.velocity.y >= platform.pos.y + platform.size.y) {
+                    this.player.pos.y = platform.pos.y + platform.size.y
+                    this.player.velocity.y = 0
                 }
                 else {
-                    if (this.player.x + this.player.width - this.player.xVelocity <= platform.x) {
-                        this.player.x = platform.x - this.player.width
-                    } else if (this.player.x - this.player.xVelocity >= platform.x + platform.width) {
-                        this.player.x = platform.x + platform.width
+                    if (this.player.pos.x + this.player.size.x - this.player.velocity.x <= platform.pos.x) {
+                        this.player.pos.x = platform.pos.x - this.player.size.x
+                    } else if (this.player.pos.x - this.player.velocity.x >= platform.pos.x + platform.size.x) {
+                        this.player.pos.x = platform.pos.x + platform.size.x
                     }
-                    this.player.xVelocity = 0
+                    this.player.velocity.x = 0
                 }
             }
         })
@@ -251,18 +251,20 @@ class Level1Scene extends Scene {
         })
 
         // Boundary collisions
-        if (this.player.x < 0) this.player.x = 0
-        if (this.player.x + this.player.width > cnv.width()) this.player.x = cnv.width() - this.player.width
-        if (this.player.y + this.player.height > cnv.height()) {
-            this.player.y = cnv.height() - this.player.height
-            this.player.yVelocity = 0
+        if (this.player.pos.x < 0) this.player.pos.x = 0
+        if (this.player.pos.x + this.player.size.x  > cnv.width()) {
+            this.player.pos.x = cnv.width() - this.player.size.x
+        }
+        if (this.player.pos.y + this.player.size.y > cnv.height()) {
+            this.player.pos.y = cnv.height() - this.player.size.y
+            this.player.velocity.y = 0
             this.player.isJumping = false
         }
     }
 
     onRender() {
         const cnv = this.manager.engine().canvas()
-        cnv.clear()
+        //cnv.clear()
 
         //draw sky
         cnv.rect(
@@ -281,11 +283,11 @@ class Level1Scene extends Scene {
         //draw platforms
         this.platforms.forEach(platform => {
             cnv.rect(
-                Point.from(platform.x, platform.y),
-                Point.from(platform.width, platform.height),
+                Point.from(platform.pos.x, platform.pos.y),
+                Point.from(platform.size.x, platform.size.y),
                 cnv.gradient(
-                    Point.from(0, platform.y),
-                    Point.from(0, platform.y + platform.height),
+                    Point.from(0, platform.pos.y),
+                    Point.from(0, platform.pos.y + platform.size.y),
                     [
                         [0, THEMES[TIME_OF_DAY].platform],
                         [1, '#CC5544']
@@ -298,21 +300,33 @@ class Level1Scene extends Scene {
         this.goals.forEach(goal => {
             cnv.image(
                 this.assets.imgGoal,
-                Point.from(goal.x, goal.y),
-                Point.from(this.GOAL_SIZE, this.GOAL_SIZE)
+                Point.from(goal.pos.x, goal.pos.y),
+                Point.from(goal.size.x, goal.size.y)
             )
         })
 
         //draw player
         cnv.image(
             this.assets.imgHero,
-            Point.from(this.player.x, this.player.y),
-            Point.from(this.player.width, this.player.height)
+            Point.from(this.player.pos.x, this.player.pos.y),
+            Point.from(this.player.size.x , this.player.size.y)
         )
 
         //draw status
-        cnv.text('Time: ' + Math.ceil(this.timeLeft) + 's', Point.from(10, 30), '14px Arial', '#fff', 'left')
-        cnv.text('Score: ' + this.score, Point.from(10, 60), '14px Arial', '#fff', 'left')
+        cnv.text(
+            'Time: ' + Math.ceil(this.timeLeft) + 's',
+            Point.from(10, 30),
+            '14px Arial',
+            '#fff',
+            'left'
+        )
+        cnv.text(
+            'Score: ' + this.score,
+            Point.from(10, 60),
+            '14px Arial',
+            '#fff',
+            'left'
+        )
     }
 
     onKeyDown(event) {
@@ -358,10 +372,27 @@ class GameOverScene extends Scene {
             cnv.rgba(0, 0, 0, 0.5)
         )
 
-        cnv.text('Game Over!', Point.from(cnv.width() / 2, cnv.height() / 2 - 30), '48px Arial', '#fff', 'center')
-        cnv.text(`Final Score: ${this.score}`, Point.from(cnv.width() / 2, cnv.height() / 2 + 20), '24px Arial', '#fff', 'center')
-        cnv.text('Press Space to Restart', Point.from(cnv.width() / 2, cnv.height() / 2 + 60), '24px Arial', '#fff', 'center')
-
+        cnv.text(
+            'Game Over!',
+            Point.from(cnv.width() / 2, cnv.height() / 2 - 30),
+            '48px Arial',
+            '#fff',
+            'center'
+        )
+        cnv.text(
+            `Final Score: ${this.score}`,
+            Point.from(cnv.width() / 2, cnv.height() / 2 + 20),
+            '24px Arial',
+            '#fff',
+            'center'
+        )
+        cnv.text(
+            'Press Space to Restart',
+            Point.from(cnv.width() / 2, cnv.height() / 2 + 60),
+            '24px Arial',
+            '#fff',
+            'center'
+        )
     }
 
     onKeyDown(event) {
@@ -374,7 +405,7 @@ class GameOverScene extends Scene {
 /**
  * main
  */
-const canvas = document.getElementById('gameCanvas')
-const engine = new Engine(new Web2dCanvas(canvas))
+const windowCanvas = document.getElementById('gameCanvas')
+const engine = new Engine(new Web2dCanvas(windowCanvas))
 engine.scene().change(StartScene)
 engine.run()

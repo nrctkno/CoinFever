@@ -35,10 +35,10 @@ class Engine {
     }
 
     checkCollision(obj1, obj2) {
-        return obj1.x < obj2.x + obj2.width &&
-            obj1.x + obj1.width > obj2.x &&
-            obj1.y < obj2.y + obj2.height &&
-            obj1.y + obj1.height > obj2.y
+        return obj1.pos.x < obj2.pos.x + obj2.size.x &&
+            obj1.pos.x + obj1.size.x > obj2.pos.x &&
+            obj1.pos.y < obj2.pos.y + obj2.size.y &&
+            obj1.pos.y + obj1.size.y > obj2.pos.y
     }
 
     loadAssets(definitions) {
@@ -182,19 +182,6 @@ class SceneManager {
     }
 }
 
-class Point {
-    constructor(x, y) {
-        this.x = x
-        this.y = y
-    }
-
-    //static method to create a Point from x and y
-    static from(x, y) {
-        return new Point(x, y)
-    }
-
-}
-
 class Canvas {
 
     constructor() {
@@ -299,19 +286,5 @@ class Web2dCanvas extends Canvas {
 
     rgb(r, g, b) {
         return `rgb(${r}, ${g}, ${b})`
-    }
-}
-
-class Gradient {
-
-    /**
-     * @param {*} colorStopPairs
-     */
-    constructor(x0, y0, x1, y1, colorStopPairs) {
-        this.x0 = x0
-        this.y0 = y0
-        this.x1 = x1
-        this.y1 = y1
-        this.colors = colorStopPairs
     }
 }
