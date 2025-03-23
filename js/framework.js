@@ -80,7 +80,7 @@ class AssetDefinition {
 
 class ImageDefinition extends AssetDefinition {
 
-    constructor(src, width, height) {
+    constructor(src) {
         super(src)
     }
 }
@@ -206,12 +206,8 @@ class Canvas {
         throw new Error("Method 'drawText()' must be implemented.")
     }
 
-    width() {
-        throw new Error("Method 'width()' must be implemented.")
-    }
-
-    height() {
-        throw new Error("Method 'height()' must be implemented.")
+    size() {
+        throw new Error("Method 'size()' must be implemented.")
     }
 
     gradient(x0, y0, x1, y1, colorStopPairs) {
@@ -260,12 +256,8 @@ class Web2dCanvas extends Canvas {
         this.context.fillText(text, pos.x, pos.y)
     }
 
-    width() {
-        return this.canvasElement.width
-    }
-
-    height() {
-        return this.canvasElement.height
+    size() {
+        return Point.from(this.canvasElement.width, this.canvasElement.height)
     }
 
     /**

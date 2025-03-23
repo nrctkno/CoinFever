@@ -50,10 +50,10 @@ class StartScene extends Scene {
         //draw BG
         cnv.rect(
             Point.from(0, 0),
-            Point.from(cnv.width(), cnv.height()),
+            cnv.size(),
             cnv.gradient(
                 Point.from(0, 0),
-                Point.from(0, cnv.height()),
+                Point.from(0, cnv.size().y),
                 [
                     [0, THEMES[TIME_OF_DAY].background],
                     [1, '#FFF']
@@ -61,8 +61,8 @@ class StartScene extends Scene {
             )
         )
 
-        cnv.text('Coin Fever', Point.from(cnv.width() / 2, cnv.height() / 2), '36px Arial', '#fff', 'center')
-        cnv.text('Press Space to Start', Point.from(cnv.width() / 2, cnv.height() / 2 + 60), '24px Arial', '#fff', 'center')
+        cnv.text('Coin Fever', Point.from(cnv.size().x / 2, cnv.size().y / 2), '36px Arial', '#fff', 'center')
+        cnv.text('Press Space to Start', Point.from(cnv.size().x / 2, cnv.size().y / 2 + 60), '24px Arial', '#fff', 'center')
 
         //draw big goal
         cnv.image(this.assets.imgGoal, Point.from(380, 100), Point.from(40, 40))
@@ -96,11 +96,11 @@ class SettingsScene extends Scene {
         //draw BG
         cnv.rect(
             Point.from(0, 0),
-            Point.from(cnv.width(), cnv.height()),
+            cnv.size(),
             '#aaa'
         )
 
-        cnv.text('Settings', Point.from(cnv.width() / 2, 80), '36px Arial', '#fff', 'center')
+        cnv.text('Settings', Point.from(cnv.size().x / 2, 80), '36px Arial', '#fff', 'center')
     }
 
     onKeyDown(event) {
@@ -197,8 +197,8 @@ class Level1Scene extends Scene {
         do {
             newGoal = {
                 pos: Point.from(
-                    Math.random() * (cnv.width() - this.GOAL_SIZE),
-                    Math.random() * (cnv.height() - this.GOAL_SIZE)
+                    Math.random() * (cnv.size().x - this.GOAL_SIZE),
+                    Math.random() * (cnv.size().y - this.GOAL_SIZE)
                 ),
                 size: Point.from(
                     this.GOAL_SIZE,
@@ -296,11 +296,11 @@ class Level1Scene extends Scene {
 
         // Boundary collisions
         if (this.hero.pos.x < 0) this.hero.pos.x = 0
-        if (this.hero.pos.x + this.hero.size.x  > cnv.width()) {
-            this.hero.pos.x = cnv.width() - this.hero.size.x
+        if (this.hero.pos.x + this.hero.size.x  > cnv.size().x) {
+            this.hero.pos.x = cnv.size().x - this.hero.size.x
         }
-        if (this.hero.pos.y + this.hero.size.y > cnv.height()) {
-            this.hero.pos.y = cnv.height() - this.hero.size.y
+        if (this.hero.pos.y + this.hero.size.y > cnv.size().y) {
+            this.hero.pos.y = cnv.size().y - this.hero.size.y
             this.hero.velocity.y = 0
             this.hero.isJumping = false
         }
@@ -313,10 +313,10 @@ class Level1Scene extends Scene {
         //draw sky
         cnv.rect(
             Point.from(0, 0),
-            Point.from(cnv.width(), cnv.height()),
+            Point.from(cnv.size().x, cnv.size().y),
             cnv.gradient(
                 Point.from(0, 0),
-                Point.from(0, cnv.height()),
+                Point.from(0, cnv.size().y),
                 [
                     [0, THEMES[TIME_OF_DAY].background],
                     [1, '#FFF']
@@ -420,27 +420,27 @@ class GameOverScene extends Scene {
         //game over overlay
         cnv.rect(
             Point.from(0, 0),
-            Point.from(cnv.width(), cnv.height()),
+            cnv.size(),
             cnv.rgba(0, 0, 0, 0.5)
         )
 
         cnv.text(
             'Game Over!',
-            Point.from(cnv.width() / 2, cnv.height() / 2 - 30),
+            Point.from(cnv.size().x / 2, cnv.size().y / 2 - 30),
             '48px Arial',
             '#fff',
             'center'
         )
         cnv.text(
             `Final Score: ${this.score}`,
-            Point.from(cnv.width() / 2, cnv.height() / 2 + 20),
+            Point.from(cnv.size().x / 2, cnv.size().y / 2 + 20),
             '24px Arial',
             '#fff',
             'center'
         )
         cnv.text(
             'Press Space to Restart',
-            Point.from(cnv.width() / 2, cnv.height() / 2 + 60),
+            Point.from(cnv.size().x / 2, cnv.size().y / 2 + 60),
             '24px Arial',
             '#fff',
             'center'
