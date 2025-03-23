@@ -69,9 +69,53 @@ class StartScene extends Scene {
     }
 
     onKeyDown(event) {
-        if (event.code === 'Space') {
-            this.manager.change(Level1Scene)
-        }
+        const handlers = {
+            'Escape': () => {
+                this.manager.change(SettingsScene);
+            },
+            'Space': () => {
+                this.manager.change(Level1Scene)
+            },
+            'default': () => {
+            }
+        };
+        return (handlers[event.code] || handlers['default'])();
+    }
+}
+
+class SettingsScene extends Scene {
+
+    constructor(manager) {
+        super(manager)
+    }
+
+    onRender() {
+        const cnv = this.manager.engine().canvas()
+        cnv.clear()
+
+        //draw BG
+        cnv.rect(
+            Point.from(0, 0),
+            Point.from(cnv.width(), cnv.height()),
+            '#aaa'
+        )
+
+        cnv.text('Settings', Point.from(cnv.width() / 2, 80), '36px Arial', '#fff', 'center')
+    }
+
+    onKeyDown(event) {
+        const handlers = {
+            'Escape': () => {
+                this.manager.change(StartScene);
+            },
+            'Space': () => {
+                //todo: save settings
+                this.manager.change(StartScene);
+            },
+            'default': () => {
+            }
+        };
+        return (handlers[event.code] || handlers['default'])();
     }
 }
 
@@ -330,7 +374,15 @@ class Level1Scene extends Scene {
     }
 
     onKeyDown(event) {
-        this.keys[event.code] = true
+        const handlers = {
+            'Escape': () => {
+                this.manager.change(StartScene);
+            },
+            'default': () => {
+                this.keys[event.code] = true;
+            }
+        };
+        return (handlers[event.code] || handlers['default'])();
     }
 
     onKeyUp(event) {
