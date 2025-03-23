@@ -1,7 +1,7 @@
 // Environment constants
 const GRAVITY = 0.5
 const FRICTION = 0.8
-const LEVEL1_DURATION = 5 // seconds
+const LEVEL1_DURATION = 60 // seconds
 //gets a boolean based on time of day
 
 const HOUR = (new Date()).getHours()
@@ -83,7 +83,7 @@ class Level1Scene extends Scene {
         this.GOAL_SIZE = 20
         this.INITIAL_GOAL_COUNT = 5
         this.GOAL_SPAWN_TIME = 1000
-        this.DEFAULT_PLAYER_SPEED = 5
+        this.DEFAULT_HERO_SPEED = 5
         this.DEFAULT_JUMP_STRENGTH = 12
 
         this.assets = this.manager.engine().loadAssets({
@@ -100,9 +100,9 @@ class Level1Scene extends Scene {
         this.lastGoalSpawnTime = 0
         this.lastUpdateTime = 0
 
-        // Define player within the scene
-        this.player = {
-            speed: this.DEFAULT_PLAYER_SPEED,
+        // Define hero within the scene
+        this.hero = {
+            speed: this.DEFAULT_HERO_SPEED,
             jumpStrength: this.DEFAULT_JUMP_STRENGTH,
             pos: Point.from(50, 200),
             size: Point.from(30, 30),
@@ -127,11 +127,11 @@ class Level1Scene extends Scene {
         this.lastGoalSpawnTime = 0
         this.lastUpdateTime = performance.now()
 
-        // Reset player position
-        this.player.pos = Point.from(50, 200),
-        this.player.velocity.x = 0
-        this.player.velocity.y = 0
-        this.player.isJumping = false
+        // Reset hero position
+        this.hero.pos = Point.from(50, 200),
+        this.hero.velocity.x = 0
+        this.hero.velocity.y = 0
+        this.hero.isJumping = false
 
         // Spawn initial goals
         for (let i = 0; i < this.INITIAL_GOAL_COUNT; i++) {
@@ -200,49 +200,49 @@ class Level1Scene extends Scene {
 
         // Player movement
         if (this.keys['ArrowLeft']) {
-            this.player.velocity.x = -this.player.speed
+            this.hero.velocity.x = -this.hero.speed
         } else if (this.keys['ArrowRight']) {
-            this.player.velocity.x = this.player.speed
+            this.hero.velocity.x = this.hero.speed
         } else {
-            this.player.velocity.x *= FRICTION
+            this.hero.velocity.x *= FRICTION
         }
 
-        if (this.keys['ArrowUp'] && !this.player.isJumping) {
-            this.player.velocity.y = -this.player.jumpStrength
-            this.player.isJumping = true
+        if (this.keys['ArrowUp'] && !this.hero.isJumping) {
+            this.hero.velocity.y = -this.hero.jumpStrength
+            this.hero.isJumping = true
         }
 
-        this.player.velocity.y += GRAVITY
+        this.hero.velocity.y += GRAVITY
 
-        this.player.pos.x += this.player.velocity.x
-        this.player.pos.y += this.player.velocity.y
+        this.hero.pos.x += this.hero.velocity.x
+        this.hero.pos.y += this.hero.velocity.y
 
         // Platform collisions
         this.platforms.forEach(platform => {
-            if (this.manager.engine().checkCollision(this.player, platform)) {
-                if (this.player.pos.y + this.player.size.y - this.player.velocity.y <= platform.pos.y) {
-                    this.player.pos.y = platform.pos.y - this.player.size.y
-                    this.player.velocity.y = 0
-                    this.player.isJumping = false
+            if (this.manager.engine().checkCollision(this.hero, platform)) {
+                if (this.hero.pos.y + this.hero.size.y - this.hero.velocity.y <= platform.pos.y) {
+                    this.hero.pos.y = platform.pos.y - this.hero.size.y
+                    this.hero.velocity.y = 0
+                    this.hero.isJumping = false
                 }
-                else if (this.player.pos.y - this.player.velocity.y >= platform.pos.y + platform.size.y) {
-                    this.player.pos.y = platform.pos.y + platform.size.y
-                    this.player.velocity.y = 0
+                else if (this.hero.pos.y - this.hero.velocity.y >= platform.pos.y + platform.size.y) {
+                    this.hero.pos.y = platform.pos.y + platform.size.y
+                    this.hero.velocity.y = 0
                 }
                 else {
-                    if (this.player.pos.x + this.player.size.x - this.player.velocity.x <= platform.pos.x) {
-                        this.player.pos.x = platform.pos.x - this.player.size.x
-                    } else if (this.player.pos.x - this.player.velocity.x >= platform.pos.x + platform.size.x) {
-                        this.player.pos.x = platform.pos.x + platform.size.x
+                    if (this.hero.pos.x + this.hero.size.x - this.hero.velocity.x <= platform.pos.x) {
+                        this.hero.pos.x = platform.pos.x - this.hero.size.x
+                    } else if (this.hero.pos.x - this.hero.velocity.x >= platform.pos.x + platform.size.x) {
+                        this.hero.pos.x = platform.pos.x + platform.size.x
                     }
-                    this.player.velocity.x = 0
+                    this.hero.velocity.x = 0
                 }
             }
         })
 
         // Goal collisions
         this.goals = this.goals.filter(goal => {
-            if (this.manager.engine().checkCollision(this.player, goal)) {
+            if (this.manager.engine().checkCollision(this.hero, goal)) {
                 this.score += 10
                 this.manager.engine().audio().play(this.assets.fxGoal)
                 return false
@@ -251,14 +251,14 @@ class Level1Scene extends Scene {
         })
 
         // Boundary collisions
-        if (this.player.pos.x < 0) this.player.pos.x = 0
-        if (this.player.pos.x + this.player.size.x  > cnv.width()) {
-            this.player.pos.x = cnv.width() - this.player.size.x
+        if (this.hero.pos.x < 0) this.hero.pos.x = 0
+        if (this.hero.pos.x + this.hero.size.x  > cnv.width()) {
+            this.hero.pos.x = cnv.width() - this.hero.size.x
         }
-        if (this.player.pos.y + this.player.size.y > cnv.height()) {
-            this.player.pos.y = cnv.height() - this.player.size.y
-            this.player.velocity.y = 0
-            this.player.isJumping = false
+        if (this.hero.pos.y + this.hero.size.y > cnv.height()) {
+            this.hero.pos.y = cnv.height() - this.hero.size.y
+            this.hero.velocity.y = 0
+            this.hero.isJumping = false
         }
     }
 
@@ -305,11 +305,11 @@ class Level1Scene extends Scene {
             )
         })
 
-        //draw player
+        //draw hero
         cnv.image(
             this.assets.imgHero,
-            Point.from(this.player.pos.x, this.player.pos.y),
-            Point.from(this.player.size.x , this.player.size.y)
+            Point.from(this.hero.pos.x, this.hero.pos.y),
+            Point.from(this.hero.size.x , this.hero.size.y)
         )
 
         //draw status
