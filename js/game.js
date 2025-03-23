@@ -151,7 +151,8 @@ class Level1Scene extends Scene {
             pos: Point.from(50, 200),
             size: Point.from(30, 30),
             velocity: Point.from(0, 0),
-            isJumping: false
+            isJumping: false,
+            direction: 1,
         }
 
         // Define platforms for this level
@@ -176,6 +177,7 @@ class Level1Scene extends Scene {
         this.hero.velocity.x = 0
         this.hero.velocity.y = 0
         this.hero.isJumping = false
+        this.hero.direction = 1
 
         // Spawn initial goals
         for (let i = 0; i < this.INITIAL_GOAL_COUNT; i++) {
@@ -245,8 +247,10 @@ class Level1Scene extends Scene {
         // Player movement
         if (this.keys['ArrowLeft']) {
             this.hero.velocity.x = -this.hero.speed
+            this.hero.direction = -1
         } else if (this.keys['ArrowRight']) {
             this.hero.velocity.x = this.hero.speed
+            this.hero.direction = 1
         } else {
             this.hero.velocity.x *= FRICTION
         }
@@ -353,7 +357,8 @@ class Level1Scene extends Scene {
         cnv.image(
             this.assets.imgHero,
             Point.from(this.hero.pos.x, this.hero.pos.y),
-            Point.from(this.hero.size.x , this.hero.size.y)
+            Point.from(this.hero.size.x , this.hero.size.y),
+            this.hero.direction === -1 ? Point.from(-1, 1) : null
         )
 
         //draw status

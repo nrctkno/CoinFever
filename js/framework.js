@@ -231,9 +231,18 @@ class Web2dCanvas extends Canvas {
      * @param {Image} image
      * @param {Point} pos
      * @param {Point} size
+     * @param {Point|null} flip
      */
-    image(image, pos, size) {
-        this.context.drawImage(image, pos.x, pos.y, size.x, size.y)
+    image(image, pos, size, flip = null) {
+        if (flip) {
+            this.context.save()
+            this.context.scale(flip.x, flip.y)
+            //this line needs rework to support vertical flipping
+            this.context.drawImage(image, -pos.x - size.x, pos.y, size.x, size.y)
+            this.context.restore()
+        } else {
+            this.context.drawImage(image, pos.x, pos.y, size.x, size.y)
+        }
     }
 
     /**
